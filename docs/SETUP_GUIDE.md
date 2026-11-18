@@ -11,7 +11,7 @@ py -3.11 -m venv .venv-flappy
 .\.venv-flappy\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install torch torchvision
-python -m pip install "numpy<2" gymnasium pygame matplotlib flappy-bird-gymnasium
+python -m pip install "numpy<2" gymnasium pygame matplotlib PyYAML flappy-bird-gymnasium
 ```
 
 The package documentation identifies the environment ID as `FlappyBird-v0`. Confirm the installed package's exact API before running the reference agent.
@@ -49,6 +49,8 @@ python --version
 python -m pip freeze > requirements-installed.txt
 python -c "import torch; print('torch:', torch.__version__); print('CUDA available:', torch.cuda.is_available())"
 ```
+
+Keep the generated environment export with the experiment when exact package reproduction matters. Do not replace the project-level reference requirements with a machine-specific export without reviewing it.
 
 ## 4. Training safety
 
