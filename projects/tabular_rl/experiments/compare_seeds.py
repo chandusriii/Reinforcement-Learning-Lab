@@ -130,7 +130,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--alpha", type=float, default=0.5)
     parser.add_argument("--gamma", type=float, default=0.99)
     parser.add_argument("--epsilon", type=float, default=0.1)
-    parser.add_argument("--output-dir", type=Path, default=Path("results/multi_seed"))
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path(__file__).resolve().parents[1] / "results" / "multi_seed",
+        help="Output directory (defaults to projects/tabular_rl/results/multi_seed).",
+    )
     args = parser.parse_args()
 
     if not args.seeds or len(set(args.seeds)) != len(args.seeds):
