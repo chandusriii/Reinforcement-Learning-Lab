@@ -4,7 +4,6 @@ import flappy_bird_gymnasium  # noqa: F401 - registers the environment
 import gymnasium as gym
 from dqn import DQN
 from experience_replay import ReplayMemory
-import itertools
 import yaml
 import torch
 import torch.nn as nn
@@ -96,7 +95,7 @@ class Agent:
         self.LOG_FILE = os.path.join(RUNS_DIR, f"{self.param_set}.log")
         self.MODEL_FILE = os.path.join(RUNS_DIR, f"{self.param_set}.pt")
 
-    def run(self, is_training=True, render=False, seed=42, episodes=100):
+    def run(self, is_training=True, render=False, seed=42, episodes=100, max_steps_per_episode=10_000):
         random.seed(seed)
         torch.manual_seed(seed)
         raw_env = gym.make(
@@ -122,7 +121,7 @@ class Agent:
             steps = 0
             self.optimizer = optim.Adam(policy_dqn.parameters(), lr=self.alpha)
             best_reward = float("-inf")
-            episode_range = itertools.count()
+            episode_range = range(episodes)
         else:
             if not os.path.isfile(self.MODEL_FILE):
                 raise FileNotFoundError(
@@ -151,8 +150,13 @@ class Agent:
                 episode_reward = 0.0
                 terminated = False
                 truncated = False
+                episode_steps = 0
 
-                while not (terminated or truncated) and episode_reward < self.reward_threshold:
+                while (
+                    not (terminated or truncated)
+                    and episode_reward < self.reward_threshold
+                    and episode_steps < max_steps_per_episode
+                ):
                     if is_training and random.random() < epsilon:
                         action = torch.tensor(
                             env.action_space.sample(), dtype=torch.long, device=device
@@ -167,6 +171,7 @@ class Agent:
                         env.step(action.item())
                     )
                     episode_reward += float(reward)
+                    episode_steps += 1
                     reward_tensor = torch.tensor(
                         reward, dtype=torch.float32, device=device
                     )
@@ -186,7 +191,7 @@ class Agent:
                 epsilon_text = f"{epsilon:.6f}" if is_training else "N/A"
                 print(
                     f"episode={episode + 1} return={episode_reward:.3f} "
-                    f"epsilon={epsilon_text}"
+                    f"steps={episode_steps} epsilon={epsilon_text}"
                 )
 
                 if not is_training:
@@ -202,6 +207,12 @@ class Agent:
                         torch.save(policy_dqn.state_dict(), self.MODEL_FILE)
                         best_reward = episode_reward
 
+                if is_training and (episode + 1) % 100 == 0:
+                    torch.save(
+                        policy_dqn.state_dict(),
+                        os.path.join(RUNS_DIR, f"{self.param_set}_latest.pt"),
+                    )
+
                 if is_training and len(memory) >= self.mini_batch_size:
                     mini_batch = memory.sample(self.mini_batch_size)
                     self.optimize(mini_batch, policy_dqn, target_dqn)
@@ -216,6 +227,13 @@ class Agent:
                     f"{env.clipped_values} of {env.observation_values} values "
                     "to the declared Box bounds."
                 )
+
+        if is_training:
+            torch.save(
+                policy_dqn.state_dict(),
+                os.path.join(RUNS_DIR, f"{self.param_set}_latest.pt"),
+            )
+            print("Latest checkpoint saved to runs/")
 
         if not is_training:
             average_reward = sum(evaluation_rewards) / len(evaluation_rewards)
@@ -271,21 +289,22 @@ if __name__ == "__main__":
     parser.add_argument("hyperparameters", help="Key from parameters.yaml")
     parser.add_argument("--train", action="store_true", help="Run training mode")
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--episodes", type=int, default=100,
-                        help="Number of greedy episodes in evaluation mode")
+    parser.add_argument("--episodes", type=int, default=None,
+                        help="Episodes to train/evaluate (default: 20,000 training; 100 evaluation)")
+    parser.add_argument("--max-steps", type=int, default=10_000,
+                        help="Maximum steps in one episode to prevent unbounded loops")
     parser.add_argument("--render", action="store_true")
     args = parser.parse_args()
 
-    if args.episodes < 1:
-        parser.error("--episodes must be positive.")
+    episodes = args.episodes if args.episodes is not None else (20_000 if args.train else 100)
+    if episodes < 1 or args.max_steps < 1:
+        parser.error("--episodes and --max-steps must be positive.")
 
     agent = Agent(param_set=args.hyperparameters)
-    if args.train:
-        agent.run(is_training=True, render=args.render, seed=args.seed)
-    else:
-        agent.run(
-            is_training=False,
-            render=args.render,
-            seed=args.seed,
-            episodes=args.episodes,
-        )
+    agent.run(
+        is_training=args.train,
+        render=args.render,
+        seed=args.seed,
+        episodes=episodes,
+        max_steps_per_episode=args.max_steps,
+    )
