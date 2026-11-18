@@ -74,7 +74,7 @@ The Mario assignment applies Double DQN to a visual game environment. The refere
 
 [Read the Mario Double DQN project documentation](projects/mario_double_dqn/README.md).
 
-The assignment points to the [official PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). The project also documents the research foundation in van Hasselt, Guez, and Silver, [Deep Reinforcement Learning with Double Q-Learning](https://arxiv.org/abs/1509.06461). The tutorial uses a legacy Gym ecosystem stack, so dependency and operating-system compatibility must be checked before setup. Mario training and evaluation have not yet been completed.
+The implementation now includes the tutorial-aligned CNN, online/target networks, disk-backed replay buffer, Mario preprocessing wrappers, Double DQN training loop, separate greedy evaluator, smoke test, and core unit tests. It is based on the [official PyTorch Mario tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html) and van Hasselt et al.'s [Double DQN paper](https://arxiv.org/abs/1509.06461). Emulator execution and gameplay results must still be generated in the isolated environment described in the project README.
 
 ## Experiments and reproducibility
 
