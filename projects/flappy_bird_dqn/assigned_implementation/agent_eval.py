@@ -75,6 +75,9 @@ class Agent:
         num_actions = env.action_space.n
         policy_dqn = DQN(num_states, num_actions).to(device)
         evaluation_rewards = []
+        evaluation_steps = []
+        training_file = None
+        training_writer = None
 
         if is_training:
             memory = ReplayMemory(self.replay_memory_size)
@@ -82,8 +85,18 @@ class Agent:
             target_dqn = DQN(num_states, num_actions).to(device)
             target_dqn.load_state_dict(policy_dqn.state_dict())
             steps = 0
+            total_env_steps = 0
             self.optimizer = optim.Adam(policy_dqn.parameters(), lr=self.alpha)
             best_reward = float("-inf")
+            training_path = os.path.join(
+                RUNS_DIR, f"{self.param_set}_training_seed_{seed}.csv"
+            )
+            training_file = open(training_path, "w", newline="", encoding="utf-8")
+            training_writer = csv.writer(training_file)
+            training_writer.writerow([
+                "episode", "seed", "return", "steps",
+                "total_env_steps", "epsilon", "mean_loss"
+            ])
             episode_range = range(episodes)
         else:
             if not os.path.isfile(self.MODEL_FILE):
@@ -114,6 +127,8 @@ class Agent:
                 terminated = False
                 truncated = False
                 episode_steps = 0
+                episode_epsilon = epsilon if is_training else 0.0
+                episode_losses = []
 
                 while (
                     not (terminated or truncated)
@@ -148,6 +163,7 @@ class Agent:
                             reward_tensor, bool(terminated)
                         ))
                         steps += 1
+                        total_env_steps += 1
 
                     state = next_state_tensor
 
@@ -159,6 +175,7 @@ class Agent:
 
                 if not is_training:
                     evaluation_rewards.append(episode_reward)
+                    evaluation_steps.append(episode_steps)
 
                 if is_training:
                     epsilon = max(epsilon * self.epsilon_decay, self.epsilon_min)
@@ -178,11 +195,31 @@ class Agent:
 
                 if is_training and len(memory) >= self.mini_batch_size:
                     mini_batch = memory.sample(self.mini_batch_size)
-                    self.optimize(mini_batch, policy_dqn, target_dqn)
+                    episode_losses.append(
+                        self.optimize(mini_batch, policy_dqn, target_dqn)
+                    )
                     if steps >= self.network_sync_rate:
                         target_dqn.load_state_dict(policy_dqn.state_dict())
                         steps = 0
+
+                if training_writer is not None:
+                    mean_loss = (
+                        sum(episode_losses) / len(episode_losses)
+                        if episode_losses else 0.0
+                    )
+                    training_writer.writerow([
+                        episode + 1,
+                        seed + episode,
+                        round(episode_reward, 4),
+                        episode_steps,
+                        total_env_steps,
+                        round(episode_epsilon, 6),
+                        round(mean_loss, 6),
+                    ])
+                    training_file.flush()
         finally:
+            if training_file is not None:
+                training_file.close()
             if is_training:
                 torch.save(
                     policy_dqn.state_dict(),
@@ -198,6 +235,7 @@ class Agent:
 
         if is_training:
             print("Latest checkpoint saved to runs/")
+            print(f"Training metrics saved to {training_path}")
 
         if not is_training:
             average_reward = sum(evaluation_rewards) / len(evaluation_rewards)
@@ -209,16 +247,19 @@ class Agent:
             )
             with open(output_file, "w", newline="", encoding="utf-8") as file:
                 writer = csv.writer(file)
-                writer.writerow(["episode", "seed", "reward"])
+                writer.writerow(["episode", "seed", "reward", "steps"])
                 writer.writerows(
-                    (index, seed + index - 1, reward)
-                    for index, reward in enumerate(evaluation_rewards, start=1)
+                    (index, seed + index - 1, reward, length)
+                    for index, (reward, length) in enumerate(
+                        zip(evaluation_rewards, evaluation_steps), start=1
+                    )
                 )
 
             print("\n========== EVALUATION SUMMARY ==========")
             print(f"Episodes: {len(evaluation_rewards)}")
             print(f"Seed range: {seed}–{seed + episodes - 1}")
             print(f"Mean reward: {average_reward:.3f}")
+            print(f"Mean episode steps: {sum(evaluation_steps) / len(evaluation_steps):.1f}")
             print(f"Population standard deviation: {variance ** 0.5:.3f}")
             print(f"Maximum reward: {max(evaluation_rewards):.3f}")
             print(f"Minimum reward: {min(evaluation_rewards):.3f}")
@@ -244,6 +285,7 @@ class Agent:
         self.optimizer.zero_grad(set_to_none=True)
         loss.backward()
         self.optimizer.step()
+        return float(loss.detach().item())
 
 
 if __name__ == "__main__":
