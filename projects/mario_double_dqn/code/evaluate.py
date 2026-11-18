@@ -17,12 +17,13 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate Mario Double DQN.")
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--episodes", type=int, default=20)
+    parser.add_argument("--max-steps", type=int, default=20_000)
     parser.add_argument("--seed", type=int, default=10_000)
     parser.add_argument("--render", action="store_true")
     parser.add_argument("--output", type=Path, default=Path("evaluation/evaluation.csv"))
     args = parser.parse_args()
-    if args.episodes < 1:
-        raise ValueError("Episodes must be positive.")
+    if args.episodes < 1 or args.max_steps < 1:
+        raise ValueError("Episodes and max steps must be positive.")
 
     env = make_mario_env(render=args.render)
     agent = MarioAgent(
@@ -45,7 +46,7 @@ def main():
                 state, _ = env.reset(seed=args.seed + episode)
                 total_return = 0.0
                 reached_flag = False
-                for step in range(1, 20_001):
+                for step in range(1, args.max_steps + 1):
                     action = agent.act(state, explore=False)
                     state, reward, terminated, truncated, info = env.step(action)
                     total_return += float(reward)
