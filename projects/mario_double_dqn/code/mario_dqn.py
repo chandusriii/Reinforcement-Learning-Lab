@@ -327,30 +327,39 @@ class MarioAgent:
             path,
         )
 
-    def load(self, path: str | Path) -> int:
+    def load(self, path: str | Path, require_replay: bool = False) -> int:
+        """Load network weights; validate persistent replay only for training resume.
+
+        Greedy evaluation needs model weights and must work with a fresh, empty
+        replay buffer. Continuing training must set require_replay=True so that
+        stale or mismatched replay files cannot silently corrupt the run.
+        """
         checkpoint = torch.load(path, map_location=self.device, weights_only=True)
         if tuple(checkpoint["state_dim"]) != self.state_dim:
             raise ValueError("Checkpoint observation shape does not match this agent.")
         if int(checkpoint["action_dim"]) != self.action_dim:
             raise ValueError("Checkpoint action count does not match this environment.")
-        required = {"episode", "replay_position", "replay_size"}
-        if not required.issubset(checkpoint):
-            raise ValueError(
-                "This checkpoint predates resumable replay memory. Start a new run "
-                "or use a checkpoint created by the persistent-replay version."
-            )
-        if (
-            int(checkpoint["curr_step"]) != self.memory.saved_curr_step
-            or int(checkpoint["replay_position"]) != self.memory.position
-            or int(checkpoint["replay_size"]) != self.memory.size
-        ):
-            raise ValueError(
-                "Checkpoint and replay-memory files are from different save points. "
-                "Resume only from the latest checkpoint using the same replay directory."
-            )
+
+        if require_replay:
+            required = {"episode", "replay_position", "replay_size"}
+            if not required.issubset(checkpoint):
+                raise ValueError(
+                    "This checkpoint predates resumable replay memory. Start a new run "
+                    "or use a checkpoint created by the persistent-replay version."
+                )
+            if (
+                int(checkpoint["curr_step"]) != self.memory.saved_curr_step
+                or int(checkpoint["replay_position"]) != self.memory.position
+                or int(checkpoint["replay_size"]) != self.memory.size
+            ):
+                raise ValueError(
+                    "Checkpoint and replay-memory files are from different save points. "
+                    "Resume only from the latest checkpoint using the same replay directory."
+                )
+
         self.net.load_state_dict(checkpoint["model"])
         self.optimizer.load_state_dict(checkpoint["optimizer"])
         self.exploration_rate = float(checkpoint["exploration_rate"])
         self.curr_step = int(checkpoint["curr_step"])
-        self.last_saved_episode = int(checkpoint["episode"])
+        self.last_saved_episode = int(checkpoint.get("episode", 0))
         return self.last_saved_episode
