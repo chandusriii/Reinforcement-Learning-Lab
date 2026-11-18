@@ -1,0 +1,8 @@
+# Initial dependency set; pin exact resolved versions after a successful environment test.
+torch
+torchvision
+numpy<2
+gymnasium
+pygame
+matplotlib
+flappy-bird-gymnasium
