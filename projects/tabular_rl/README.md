@@ -35,15 +35,22 @@ Returns in CliffWalking are negative step costs, with additional penalty for fal
 - [SARSA notebook](notebooks/SARSA.ipynb)
 - [Q-Learning notebook](notebooks/Q_Learning.ipynb)
 
-## Reproduction
+## Reproducible multi-seed comparison
 
-Install Gymnasium with its toy-text dependencies and NumPy in a Python environment that supports the package versions you choose:
+A standalone experiment runner now compares SARSA and Q-Learning using the same ten seeds, matching the notebook hyperparameters (500 episodes, alpha 0.5, gamma 0.99, epsilon 0.1). It runs a separate 20-episode greedy evaluation for every trained seed, then writes per-seed metrics, aggregate means and population standard deviations, and run metadata.
 
-    python -m pip install "gymnasium[toy-text]" numpy jupyter
+Install the pinned dependencies and run it from the repository root:
 
-Open either notebook in Jupyter and run the cells in order. The original notebooks include rendering during selected training episodes and a final greedy evaluation. On a headless machine, remove or disable the human-rendering cells before running.
+    python -m pip install -r requirements/tabular-rl.txt
+    python projects/tabular_rl/experiments/compare_seeds.py
 
-For a stronger experiment, add explicit seeds, repeat each algorithm over the same set of seeds, keep environment settings matched, and report mean and variability across runs.
+You can change the protocol explicitly, for example:
+
+    python projects/tabular_rl/experiments/compare_seeds.py --seeds 1 2 3 4 5 --episodes 500 --evaluation-episodes 20
+
+Outputs are written to `projects/tabular_rl/results/multi_seed/`. A GitHub Actions workflow runs the default ten-seed experiment and uploads the CSV/JSON evidence as a 90-day workflow artifact. The original coursework notebooks remain unchanged; the multi-seed run is a separate, reproducible comparison.
+
+Open either notebook in Jupyter to reproduce the original single-run coursework outputs. The notebooks include rendering during selected training episodes; on a headless machine, disable the human-rendering cells before running.
 
 ## Interpretation
 
