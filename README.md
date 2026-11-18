@@ -48,13 +48,18 @@ The explanations follow the supplied course PDFs and project assignment material
 │   │   ├── README.md
 │   │   ├── requirements-mario.txt
 │   │   ├── code/
+│   │   │   ├── environment.py
+│   │   │   ├── mario_dqn.py
+│   │   │   ├── train.py
+│   │   │   ├── evaluate.py
+│   │   │   ├── smoke_test.py
+│   │   │   └── test_core.py
 │   │   └── results/
-│   │       ├── environment.py
-│   │       ├── mario_dqn.py
-│   │       ├── train.py
-│   │       ├── evaluate.py
-│   │       ├── smoke_test.py
-│   │       └── test_core.py
+│   │       ├── README.md
+│   │       ├── training_40ep.csv
+│   │       ├── training_100ep_fast_epsilon.csv
+│   │       ├── evaluation_40ep_greedy10.csv
+│   │       └── evaluation_100ep_greedy10.csv
 │   └── tabular_rl/
 │       ├── README.md
 │       └── notebooks/
