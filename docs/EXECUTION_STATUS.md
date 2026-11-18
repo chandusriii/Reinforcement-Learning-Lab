@@ -16,11 +16,11 @@ This page separates code/architecture checks from actual environment training an
 | Flappy Bird end-to-end training | **Completed locally** | Training log records a best reward of 5.6 at episode 13,604 |
 | Flappy Bird checkpoint | **Saved locally** | `runs/flappybirdv0.pt`; checkpoint is saved when a new best episode reward is reached |
 | Flappy Bird greedy evaluation | **Completed locally** | 100 episodes; mean 1.455, population standard deviation 0.907, max 5.6, min -0.2 |
-| Flappy Bird evaluation data | **Saved locally** | `runs/flappybirdv0_evaluation.csv`; raw per-episode CSV still needs to be committed to the repository |
-| Flappy Bird visualizations | **Generated locally** | Training/evaluation plot and evaluation plot with a 10-episode moving average; image files still need to be committed |
+| Flappy Bird evaluation data | **Published** | `projects/flappy_bird_dqn/results/flappybirdv0_evaluation.csv` is committed to the repository |
+| Flappy Bird visualizations | **Generated locally; publication pending** | Two PNG plots exist in the local `runs/` folder; they were not found in the GitHub `results/` directory during verification |
 | Mario Double DQN architecture | Preliminary shape/finite-output check reported | Does not validate emulator integration, optimization, or gameplay |
 | Mario game training and evaluation | Pending | Environment compatibility, smoke test, training, and separate evaluation remain |
-| Repository artifacts | Partially updated | Results are documented; local CSV and PNG artifacts are not automatically uploaded by this documentation update |
+| Repository artifacts | **Partially published** | Evaluation CSV and training log are on GitHub. PNG visualizations remain local and need to be uploaded separately |
 
 ## Flappy Bird DQN: completed local run
 
@@ -70,7 +70,7 @@ Local evaluation artifacts:
 - `runs/flappybird_dqn_performance.png` — training best-reward events and evaluation rewards.
 - `runs/flappybird_dqn_evaluation_v2.png` — evaluation rewards and 10-episode moving average.
 
-The raw CSV and PNG files were generated on the Windows machine. They still need to be added to Git if they are to appear in the public repository; this status/documentation update does not upload local files.
+The evaluation CSV and training log have been committed under `projects/flappy_bird_dqn/results/`. The two PNG visualizations remain in the local `assigned_implementation/runs/` folder and were not found in the public results directory at the time of this check. The model checkpoint remains local and is intentionally not published.
 
 ### Warnings and limitations
 
@@ -94,7 +94,7 @@ These are historical, preliminary results from the prior session. They have not 
 ## Remaining work
 
 ### Flappy Bird
-1. Commit the local evaluation CSV and generated PNG visualizations.
+1. Upload the two generated PNG visualizations to `projects/flappy_bird_dqn/results/` (the CSV and training log are already published).
 2. Save a complete package lock/export from the working virtual environment.
 3. Investigate the Gymnasium observation-space warnings.
 4. Optionally repeat evaluation with documented seeds and a fixed protocol.
