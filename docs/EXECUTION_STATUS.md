@@ -9,9 +9,9 @@ This page separates code/architecture checks from actual environment training an
 | Work item | Status | Evidence / limitation |
 |---|---|---|
 | RL fundamentals material | Reviewed | Learning notes are present; further revision and examples remain useful |
-| SARSA / CliffWalking | Preliminary algorithm run reported | Recreated environment; not yet reproduced from a committed notebook or controlled multi-seed experiment |
-| Q-Learning / CliffWalking | Preliminary algorithm run reported | Recreated environment; not yet reproduced from a committed notebook or controlled multi-seed experiment |
-| Flappy Bird DQN architecture | Inspected | 12 state features, 256-unit hidden layer, two action values |
+| SARSA / CliffWalking | Source notebook committed; single run retained | 500-episode CliffWalking run and greedy evaluation are included in projects/tabular_rl/notebooks/SARSA.ipynb; no seed or multi-seed comparison |
+| Q-Learning / CliffWalking | Source notebook committed; single run retained | 500-episode CliffWalking run and greedy evaluation are included in projects/tabular_rl/notebooks/Q_Learning.ipynb; no seed or multi-seed comparison |
+| Flappy Bird DQN architecture | Inspected | 180 LiDAR observations in the executed configuration, 256-unit hidden layer, two action values |
 | Flappy Bird environment setup | Completed locally | Windows 11, Python 3.11.9, CPU-only PyTorch run |
 | Flappy Bird end-to-end training | **Completed locally** | Training log records a best reward of 5.6 at episode 13,604 |
 | Flappy Bird checkpoint | **Saved locally** | `runs/flappybirdv0.pt`; checkpoint is saved when a new best episode reward is reached |
@@ -19,7 +19,7 @@ This page separates code/architecture checks from actual environment training an
 | Flappy Bird evaluation data | **Published** | Evaluation CSV committed under `projects/flappy_bird_dqn/results/` |
 | Flappy Bird visualizations | **Published** | Two PNG files are committed under `projects/flappy_bird_dqn/results/` |
 | Repository artifacts | **Published** | Evaluation CSV, training log, and two PNG visualizations are available in the results directory |
-| Mario Double DQN architecture | Preliminary shape/finite-output check reported | Does not validate emulator integration, optimization, or gameplay |
+| Mario Double DQN documentation | Prepared | Aligned to the supplied assignment, official PyTorch tutorial, and Double DQN research paper; implementation and emulator validation remain pending |
 | Mario game training and evaluation | Pending | Environment compatibility, smoke test, training, and separate evaluation remain |
 
 ## Flappy Bird DQN: completed local run
@@ -88,10 +88,10 @@ The earlier session reported these single-run values from a recreated CliffWalki
 
 | Algorithm | Episodes | Last-50 mean reward | Last-50 mean steps | Greedy evaluation reward | Greedy evaluation steps |
 |---|---:|---:|---:|---:|---:|
-| SARSA | 500 | -26.10 | 22.14 | -17 | 17 |
-| Q-Learning | 500 | -44.30 | 16.58 | -13 | 13 |
+| SARSA | 500 | -22.20 | 20.22 | -17 | 17 |
+| Q-Learning | 500 | -57.04 | 17.44 | -13 | 13 |
 
-These are historical, preliminary results from the prior session. They have not been independently reproduced in this repository. Do not use them as a controlled algorithm comparison: a single seed, evaluation setup, and implementation details may affect the result.
+These values were recalculated from the recorded episode outputs and greedy-evaluation cells in the two supplied notebooks now committed under projects/tabular_rl/notebooks/. They are single-run observations: the notebooks do not set a random seed, and the values should not be presented as a controlled or multi-seed algorithm comparison.
 
 ## Remaining work
 
@@ -104,18 +104,19 @@ These are historical, preliminary results from the prior session. They have not 
 
 ### Tabular RL
 
-1. Add/review the SARSA and Q-Learning notebooks in the repository.
-2. Reproduce both algorithms from committed notebooks.
-3. Compare them with matched environment settings and multiple seeds.
-4. Reproduce Cliff Walking results and record the policy/evaluation protocol.
+1. Review the supplied SARSA and Q-Learning notebooks and preserve their original versions.
+2. Add explicit random seeds and repeat both algorithms over the same set of seeds.
+3. Record per-episode returns and lengths, then compare mean and variability across runs.
+4. Keep the greedy evaluation protocol identical for both algorithms.
 
 ### Mario
 
-1. Create a separate environment from Flappy Bird's environment.
-2. Resolve compatible versions of Gym, Gym-Super-Mario-Bros, nes-py, NumPy, PyTorch, TorchVision, TensorDict, and TorchRL.
-3. Verify emulator startup and one reset/step before training.
-4. Run a short training smoke test.
-5. Train and evaluate using a documented protocol; save logs and checkpoints.
+1. Implement the assignment from the [official PyTorch Mario tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html), using the Double DQN paper as the algorithm reference.
+2. Create a separate environment from Flappy Bird's environment.
+3. Resolve compatible versions of Gym, Gym-Super-Mario-Bros, nes-py, NumPy, PyTorch, TorchVision, TensorDict, and TorchRL.
+4. Verify emulator startup and one reset/step before training.
+5. Run a short training smoke test.
+6. Train and evaluate using a documented protocol; save logs and checkpoints.
 
 ## Integrity rule
 
