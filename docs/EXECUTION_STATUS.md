@@ -20,7 +20,7 @@ This page separates code/architecture checks from actual environment training an
 | Flappy Bird visualizations | **Published** | Two PNG files are committed under `projects/flappy_bird_dqn/results/` |
 | Repository artifacts | **Published** | Evaluation CSV, training log, and two PNG visualizations are available in the results directory |
 | Mario Double DQN implementation | **Implemented** | Tutorial-aligned CNN, online/target networks, disk-backed replay, frame preprocessing, training, checkpointing, greedy evaluation, smoke test and core tests are committed under `projects/mario_double_dqn/code/` |
-| Mario Double DQN core validation | **Passed in GitHub Actions** | Python compileall and `code/test_core.py` completed successfully on Python 3.11 / CPU PyTorch; [workflow run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44281102262) |
+| Mario Double DQN core validation | **Passed in GitHub Actions** | Python compileall and `code/test_core.py` completed successfully on Python 3.11 / CPU PyTorch; [workflow run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44288712557) |
 | Mario emulator smoke test | Pending | Requires the isolated Gym/NES dependencies and a local emulator run |
 | Mario gameplay training/evaluation | Pending | No game-playing run or reward claim is recorded yet; run the documented training and separate evaluation commands to produce evidence |
 
