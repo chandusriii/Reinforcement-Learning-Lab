@@ -49,8 +49,9 @@ class MarioNet(nn.Module):
     def forward(self, states: torch.Tensor, network: str = "online") -> torch.Tensor:
         if states.ndim == 3:
             states = states.unsqueeze(0)
+        was_integer = not torch.is_floating_point(states)
         states = states.to(dtype=torch.float32)
-        if states.numel() and states.max() > 1.0:
+        if was_integer or (states.numel() and states.max() > 1.0):
             states = states / 255.0
         if network == "online":
             return self.online(states)
