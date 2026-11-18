@@ -70,10 +70,15 @@ def read_metrics_for_resume(path: Path, completed_episode: int, expected_seed: i
         required = {"episode", "seed", "return", "steps"}
         if not header or not required.issubset(header):
             raise ValueError("Existing training CSV has an incompatible header.")
-        rows = []
-        for row in reader:
-            if int(row["episode"]) <= completed_episode:
-                rows.append(row)
+        all_rows = list(reader)
+        rows = [
+            row for row in all_rows
+            if int(row["episode"]) <= completed_episode
+        ]
+        best_recorded_return = max(
+            (float(row["return"]) for row in all_rows),
+            default=float("-inf"),
+        )
 
     if completed_episode > 0 and not any(
         int(row["episode"]) == completed_episode for row in rows
@@ -90,7 +95,7 @@ def read_metrics_for_resume(path: Path, completed_episode: int, expected_seed: i
         writer.writeheader()
         writer.writerows(rows)
     temporary.replace(path)
-    return header, rows
+    return header, rows, best_recorded_return
 
 
 class Agent:
@@ -155,7 +160,7 @@ class Agent:
         checkpoint = torch.load(
             path, map_location=DEVICE, weights_only=False
         )
-        if checkpoint.get("format_version") != CHECKPOINT_VERSION:
+        if checkpoint.get("format_version") not in (1, CHECKPOINT_VERSION):
             raise ValueError("Unsupported Flappy training-checkpoint version.")
         if checkpoint.get("param_set") != self.param_set:
             raise ValueError("Checkpoint hyperparameter set does not match.")
@@ -173,13 +178,22 @@ class Agent:
         if torch.cuda.is_available() and checkpoint.get("cuda_rng") is not None:
             torch.cuda.set_rng_state_all([state.cpu() for state in checkpoint["cuda_rng"]])
 
+        best_policy = checkpoint.get("best_policy")
+        if best_policy is None:
+            if not self.best_model_path.is_file():
+                best_policy = checkpoint["policy"]
+            else:
+                best_policy = torch.load(
+                    self.best_model_path, map_location=DEVICE, weights_only=True
+                )
+
         return (
             int(checkpoint["episode"]),
             float(checkpoint["epsilon"]),
             int(checkpoint["steps_since_sync"]),
             int(checkpoint["total_env_steps"]),
             float(checkpoint["best_reward"]),
-            checkpoint["best_policy"],
+            best_policy,
         )
 
     def run(
@@ -245,9 +259,14 @@ class Agent:
                 # Restore the independent best-policy snapshot without replacing
                 # the latest online weights used to continue training.
                 torch.save(best_policy_state, self.best_model_path)
-                header, _ = read_metrics_for_resume(
+                header, _, best_return_in_metrics = read_metrics_for_resume(
                     training_path, completed_episode, seed
                 )
+                if best_return_in_metrics > best_reward:
+                    best_reward = best_return_in_metrics
+                    best_policy_state = torch.load(
+                        self.best_model_path, map_location=DEVICE, weights_only=True
+                    )
                 training_file = training_path.open(
                     "a", newline="", encoding="utf-8"
                 )
