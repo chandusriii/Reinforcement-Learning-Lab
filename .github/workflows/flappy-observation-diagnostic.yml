@@ -1,0 +1,45 @@
+name: Flappy Bird Observation Diagnostic
+
+on:
+  push:
+    paths:
+      - "projects/flappy_bird_dqn/**"
+      - ".github/workflows/flappy-observation-diagnostic.yml"
+  pull_request:
+    paths:
+      - "projects/flappy_bird_dqn/**"
+      - ".github/workflows/flappy-observation-diagnostic.yml"
+  workflow_dispatch:
+
+jobs:
+  observation-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install environment dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "numpy==1.26.4" "gymnasium==1.4.0" "flappy-bird-gymnasium==0.4.0"
+      - name: Compile Flappy Bird project files
+        working-directory: projects/flappy_bird_dqn/assigned_implementation
+        run: python -m compileall -q .
+      - name: Measure raw observations
+        working-directory: projects/flappy_bird_dqn/assigned_implementation
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: |
+          python diagnose_observations.py --episodes 3 --max-steps 500 --seed 42 | tee observation_diagnostic.txt
+      - name: Upload diagnostic report
+        uses: actions/upload-artifact@v4
+        with:
+          name: flappy-observation-diagnostic
+          path: projects/flappy_bird_dqn/assigned_implementation/observation_diagnostic.txt
+          if-no-files-found: error
+          retention-days: 90
