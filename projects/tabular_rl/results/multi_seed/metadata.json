@@ -1,0 +1,14 @@
+{
+  "environment": "CliffWalking-v1",
+  "gymnasium_version": "1.4.0",
+  "seeds": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
+  "episodes_per_seed": 500,
+  "evaluation_episodes_per_seed": 20,
+  "max_episode_steps": 2000,
+  "alpha": 0.5,
+  "gamma": 0.99,
+  "epsilon": 0.1,
+  "standard_deviation": "population (ddof=0), across independent seeds",
+  "evaluation": "greedy actions; seeded random tie-breaking among equal maximum Q-values",
+  "workflow_run": "https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44330224587"
+}
