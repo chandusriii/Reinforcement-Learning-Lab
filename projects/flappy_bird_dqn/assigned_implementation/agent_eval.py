@@ -141,8 +141,12 @@ class Agent:
                 except TypeError:
                     # Compatibility fallback for older Gymnasium builds.
                     reset_result = env.reset()
+                if isinstance(reset_result, tuple) and len(reset_result) == 2:
+                    reset_observation = reset_result[0]
+                else:
+                    reset_observation = reset_result
                 state = torch.as_tensor(
-                    reset_result[0], dtype=torch.float32, device=device
+                    reset_observation, dtype=torch.float32, device=device
                 )
                 episode_reward = 0.0
                 terminated = False
