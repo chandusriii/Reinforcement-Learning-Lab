@@ -105,7 +105,7 @@ The training CSV records episode return, length, epsilon, mean loss, mean Q-valu
 
 ## Validation status
 
-The CNN forward pass, Double DQN target calculation, frozen target-network gradients, and online-network backward pass were validated on a CPU PyTorch runtime during implementation. The committed `test_core.py` provides repeatable unit tests for these components and checkpoint handling.
+The CNN forward pass, Double DQN target calculation, frozen target-network gradients, online-network optimization, and checkpoint round-trip passed the committed CPU unit tests. GitHub Actions also completed Python compileall and `code/test_core.py` successfully on Python 3.11 with CPU PyTorch ([workflow run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44281102262)).
 
 **End-to-end emulator smoke testing, Mario training, and gameplay evaluation are environment-dependent and are not represented as completed results until those commands have run successfully on a machine with the NES/Gym dependencies installed.** No gameplay score, trained checkpoint, or success-rate claim is fabricated.
 
