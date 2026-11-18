@@ -10,7 +10,7 @@ The coursework implementation uses a standard Deep Q-Network (DQN). Its target c
 
 The state-based neural network is designed with:
 
-- **Input layer:** 12 state features from the game environment.
+- **Input layer:** 180 LiDAR observations in the executed configuration (use_lidar=True). The network input dimension is read dynamically from the environment observation space.
 - **Hidden layer:** 256 neurons with ReLU activation.
 - **Output layer:** 2 Q-values, corresponding to the available actions (no-op and flap).
 
@@ -37,7 +37,7 @@ The recorded run used CPU execution; CUDA was unavailable. These are the version
 ## Project Workflow
 
 1. Initialize the Flappy Bird environment.
-2. Observe the 12-feature state representation.
+2. Observe the 180-element LiDAR state representation used in this experiment.
 3. Select an action using an epsilon-greedy policy during training.
 4. Execute the action and collect the reward and next state.
 5. Store the transition in the replay buffer.
