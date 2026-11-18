@@ -120,7 +120,8 @@ class Agent:
 
     def _save_resume_checkpoint(
         self, policy_dqn, target_dqn, optimizer, memory, episode,
-        epsilon, steps_since_sync, total_env_steps, best_reward, seed,
+        epsilon, steps_since_sync, total_env_steps, best_reward,
+        best_policy_state, seed,
     ) -> None:
         checkpoint = {
             "format_version": CHECKPOINT_VERSION,
@@ -134,6 +135,7 @@ class Agent:
             "steps_since_sync": int(steps_since_sync),
             "total_env_steps": int(total_env_steps),
             "best_reward": float(best_reward),
+            "best_policy": best_policy_state,
             "replay_memory": memory.state_dict(),
             "python_rng": random.getstate(),
             "numpy_rng": np.random.get_state(),
@@ -177,6 +179,7 @@ class Agent:
             int(checkpoint["steps_since_sync"]),
             int(checkpoint["total_env_steps"]),
             float(checkpoint["best_reward"]),
+            checkpoint["best_policy"],
         )
 
     def run(
@@ -222,6 +225,7 @@ class Agent:
             steps_since_sync = 0
             total_env_steps = 0
             best_reward = float("-inf")
+            best_policy_state = None
             completed_episode = 0
 
             if resume:
@@ -231,11 +235,15 @@ class Agent:
                     )
                 (
                     completed_episode, epsilon, steps_since_sync,
-                    total_env_steps, best_reward,
+                    total_env_steps, best_reward, best_policy_state,
                 ) = self._load_resume_checkpoint(
                     self.resume_path, policy_dqn, target_dqn,
                     self.optimizer, memory, seed,
                 )
+                if best_policy_state is None:
+                    raise ValueError("Resume checkpoint is missing the best-policy weights.")
+                policy_dqn.load_state_dict(best_policy_state)
+                torch.save(best_policy_state, self.best_model_path)
                 header, _ = read_metrics_for_resume(
                     training_path, completed_episode, seed
                 )
@@ -349,7 +357,11 @@ class Agent:
                     )
                     if episode_reward > best_reward:
                         best_reward = episode_reward
-                        torch.save(policy_dqn.state_dict(), self.best_model_path)
+                        best_policy_state = {
+                            key: value.detach().cpu().clone()
+                            for key, value in policy_dqn.state_dict().items()
+                        }
+                        torch.save(best_policy_state, self.best_model_path)
                         with self.log_path.open("a", encoding="utf-8") as log:
                             log.write(
                                 f"best reward = {episode_reward:.4f} "
@@ -363,7 +375,7 @@ class Agent:
                         self._save_resume_checkpoint(
                             policy_dqn, target_dqn, self.optimizer, memory,
                             episode, epsilon, steps_since_sync, total_env_steps,
-                            best_reward, seed,
+                            best_reward, best_policy_state, seed,
                         )
                 else:
                     evaluation_rewards.append(episode_reward)
