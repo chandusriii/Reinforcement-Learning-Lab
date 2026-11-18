@@ -40,9 +40,31 @@ The state-based neural network is designed with:
 7. Synchronize the target network at the configured intervals.
 8. Evaluate the trained agent using a greedy policy.
 
+## Assigned source implementation
+
+The exact coursework implementation files are preserved in [`assigned_implementation/`](assigned_implementation/README.md). This includes the original `agent.py`, `dqn.py`, `experience_replay.py`, `game_flappy_bird.py`, and `parameters.yaml` files. Keep source files unchanged in that folder; put experiments and modifications in separate locations.
+
 ## Running the Project
 
-Follow the [Windows setup guide](../../docs/SETUP_GUIDE.md) to create the environment and install the dependencies. Training and evaluation commands will be documented here after the runnable training pipeline is integrated and verified.
+Follow the [Windows setup guide](../../docs/SETUP_GUIDE.md) to create a compatible environment. From `projects/flappy_bird_dqn/assigned_implementation/`, run training with:
+
+```powershell
+python agent.py flappybirdv0 --train
+```
+
+Run the saved agent with rendering using:
+
+```powershell
+python agent.py flappybirdv0
+```
+
+Launch manual keyboard play with:
+
+```powershell
+python game_flappy_bird.py
+```
+
+Training output is written to the `runs/` directory created by the source code.
 
 ## Experiment Status
 
