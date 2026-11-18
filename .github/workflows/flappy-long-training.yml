@@ -1,0 +1,128 @@
+name: Flappy Bird Long Training
+
+on:
+  workflow_dispatch:
+    inputs:
+      episodes:
+        description: "Additional training episodes for this run"
+        required: true
+        default: 20000
+        type: number
+      seed:
+        description: "Training seed (keep unchanged when resuming)"
+        required: true
+        default: 42
+        type: number
+      max_steps:
+        description: "Maximum steps per episode"
+        required: true
+        default: 10000
+        type: number
+      resume:
+        description: "Resume from a previous Flappy training artifact"
+        required: true
+        default: false
+        type: boolean
+      resume_run_id:
+        description: "Previous workflow run ID containing flappy-long-training-state"
+        required: false
+        type: string
+
+jobs:
+  train-flappy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies and CPU PyTorch
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/flappy-bird.txt
+          python -m pip install "torch==2.2.2" --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Restore previous training state
+        if: ${{ inputs.resume }}
+        uses: actions/download-artifact@v4
+        with:
+          name: flappy-long-training-state
+          path: projects/flappy_bird_dqn/assigned_implementation
+          run-id: ${{ inputs.resume_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate training inputs
+        env:
+          EPISODES: ${{ inputs.episodes }}
+          SEED: ${{ inputs.seed }}
+          MAX_STEPS: ${{ inputs.max_steps }}
+          RESUME: ${{ inputs.resume }}
+          RESUME_RUN_ID: ${{ inputs.resume_run_id }}
+        run: |
+          python - <<'PY'
+          import os
+          for key in ("EPISODES", "SEED", "MAX_STEPS"):
+              if int(os.environ[key]) <= 0:
+                  raise SystemExit(f"{key} must be positive")
+          if os.environ["RESUME"].lower() == "true" and not os.environ["RESUME_RUN_ID"]:
+              raise SystemExit("resume_run_id is required when resume=true")
+          PY
+
+      - name: Compile Flappy project
+        working-directory: projects/flappy_bird_dqn/assigned_implementation
+        run: python -m compileall -q .
+
+      - name: Run long seeded training
+        working-directory: projects/flappy_bird_dqn/assigned_implementation
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+          EPISODES: ${{ inputs.episodes }}
+          SEED: ${{ inputs.seed }}
+          MAX_STEPS: ${{ inputs.max_steps }}
+          RESUME: ${{ inputs.resume }}
+        run: |
+          args=(flappybirdv0 --train --seed "$SEED" --episodes "$EPISODES" --max-steps "$MAX_STEPS" --checkpoint-every 500)
+          if [ "$RESUME" = "true" ]; then
+            args+=(--resume)
+          fi
+          python agent_eval.py "${args[@]}"
+
+      - name: Evaluate best checkpoint greedily
+        working-directory: projects/flappy_bird_dqn/assigned_implementation
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+          SEED: ${{ inputs.seed }}
+        run: |
+          python agent_eval.py flappybirdv0 --seed "$((SEED + 100000))" --episodes 100 --max-steps 10000
+
+      - name: Write run summary
+        if: always()
+        env:
+          RUN_ID: ${{ github.run_id }}
+          EPISODES: ${{ inputs.episodes }}
+          SEED: ${{ inputs.seed }}
+          RESUME: ${{ inputs.resume }}
+        run: |
+          mkdir -p projects/flappy_bird_dqn/assigned_implementation/runs
+          {
+            echo "workflow_run_id=$RUN_ID"
+            echo "episodes_this_run=$EPISODES"
+            echo "seed=$SEED"
+            echo "resumed=$RESUME"
+          } > projects/flappy_bird_dqn/assigned_implementation/runs/run_summary.txt
+
+      - name: Upload resumable training state and metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flappy-long-training-state
+          path: projects/flappy_bird_dqn/assigned_implementation/runs/
+          if-no-files-found: warn
+          retention-days: 90
