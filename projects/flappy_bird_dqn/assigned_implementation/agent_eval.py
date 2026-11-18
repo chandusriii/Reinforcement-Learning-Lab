@@ -13,6 +13,7 @@ import os
 import argparse
 import random
 import csv
+import numpy as np
 
 if torch.backends.mps.is_available():
     device = "mps"
@@ -23,6 +24,53 @@ else:
 
 RUNS_DIR = "runs"
 os.makedirs(RUNS_DIR, exist_ok=True)
+
+
+
+class ClipObservationBounds(gym.Wrapper):
+    """Clip tiny upstream LiDAR range overshoots to the declared Box space."""
+
+    def __init__(self, env):
+        super().__init__(env)
+        self.clipped_values = 0
+        self.observation_values = 0
+
+    def _clip(self, observation):
+        values = np.asarray(observation, dtype=self.observation_space.dtype)
+        outside = np.logical_or(
+            values < self.observation_space.low,
+            values > self.observation_space.high,
+        )
+        self.clipped_values += int(np.count_nonzero(outside))
+        self.observation_values += int(values.size)
+        return np.clip(
+            values, self.observation_space.low, self.observation_space.high
+        ).astype(self.observation_space.dtype, copy=False)
+
+    def reset(self, **kwargs):
+        result = self.env.reset(**kwargs)
+        if isinstance(result, tuple) and len(result) == 2:
+            observation, info = result
+        else:
+            observation, info = result, {}
+        return self._clip(observation), info
+
+    def step(self, action):
+        result = self.env.step(action)
+        if len(result) == 5:
+            observation, reward, terminated, truncated, info = result
+            return self._clip(observation), reward, terminated, truncated, info
+        observation, reward, done, info = result
+        return self._clip(observation), reward, done, info
+
+
+def split_step(result):
+    if len(result) == 5:
+        observation, reward, terminated, truncated, info = result
+        return observation, reward, bool(terminated), bool(truncated), info
+    observation, reward, done, info = result
+    truncated = bool(info.get("TimeLimit.truncated", False)) if isinstance(info, dict) else False
+    return observation, reward, bool(done) and not truncated, truncated, info
 
 
 class Agent:
@@ -51,11 +99,14 @@ class Agent:
     def run(self, is_training=True, render=False, seed=42, episodes=100):
         random.seed(seed)
         torch.manual_seed(seed)
-        env = gym.make(
+        raw_env = gym.make(
             "FlappyBird-v0",
             render_mode="human" if render else None,
             use_lidar=True,
+            normalize_obs=True,
+            disable_env_checker=True,
         )
+        env = ClipObservationBounds(raw_env)
         env.action_space.seed(seed)
 
         num_states = env.observation_space.shape[0]
@@ -86,11 +137,13 @@ class Agent:
         try:
             for episode in episode_range:
                 try:
-                    state, _ = env.reset(seed=seed + episode)
+                    reset_result = env.reset(seed=seed + episode)
                 except TypeError:
                     # Compatibility fallback for older Gymnasium builds.
-                    state, _ = env.reset()
-                state = torch.as_tensor(state, dtype=torch.float32, device=device)
+                    reset_result = env.reset()
+                state = torch.as_tensor(
+                    reset_result[0], dtype=torch.float32, device=device
+                )
                 episode_reward = 0.0
                 terminated = False
                 truncated = False
@@ -106,7 +159,9 @@ class Agent:
                                 state.unsqueeze(dim=0)
                             ).squeeze().argmax()
 
-                    next_state, reward, terminated, truncated, _ = env.step(action.item())
+                    next_state, reward, terminated, truncated, _ = split_step(
+                        env.step(action.item())
+                    )
                     episode_reward += float(reward)
                     reward_tensor = torch.tensor(
                         reward, dtype=torch.float32, device=device
@@ -151,6 +206,12 @@ class Agent:
                         steps = 0
         finally:
             env.close()
+            if env.observation_values:
+                print(
+                    "Observation range enforcement: clipped "
+                    f"{env.clipped_values} of {env.observation_values} values "
+                    "to the declared Box bounds."
+                )
 
         if not is_training:
             average_reward = sum(evaluation_rewards) / len(evaluation_rewards)
