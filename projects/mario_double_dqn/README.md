@@ -1,74 +1,118 @@
 # Super Mario Bros — Double Deep Q-Network (Double DQN)
 
-## Assignment and objective
+## Assignment and research basis
 
-The supplied assignment asks for a Mario-playing reinforcement-learning agent using **Double Deep Q-Networks (Double DQN)** and explicitly directs the student to complete the official PyTorch tutorial. The objective is to train an agent that learns to play through interaction with the game environment.
+The supplied assignment asks for a Mario-playing reinforcement-learning agent using **Double Deep Q-Networks (Double DQN)** and points to the official PyTorch tutorial. The implementation in this folder follows that tutorial's core design: visual preprocessing, frame skipping and stacking, a convolutional Q-network, experience replay, epsilon-greedy action selection, and separate online and target networks.
 
-This repository treats the PyTorch tutorial as the implementation guide and the Double DQN research paper as the algorithmic foundation. The project is documented and scoped; emulator training and evaluation are not yet claimed as completed.
+The algorithm follows Hado van Hasselt, Arthur Guez, and David Silver, [Deep Reinforcement Learning with Double Q-Learning](https://arxiv.org/abs/1509.06461), AAAI 2016, DOI [10.1609/AAAI.V30I1.10295](https://doi.org/10.1609/AAAI.V30I1.10295). Double DQN selects the next action with the online network and evaluates that action with the target network, reducing the overestimation associated with using one estimator for both operations.
 
-## Primary sources
+Primary implementation documentation: [PyTorch — Train a Mario-playing RL Agent](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html).
 
-1. **Implementation documentation:** [Train a Mario-playing RL Agent — PyTorch Tutorials](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). The tutorial covers visual-observation preprocessing, frame skipping and stacking, convolutional Q-networks, replay memory, epsilon-greedy action selection, online and target networks, and training.
-2. **Research paper:** Hado van Hasselt, Arthur Guez, and David Silver, [Deep Reinforcement Learning with Double Q-Learning](https://arxiv.org/abs/1509.06461), AAAI 2016, DOI: [10.1609/AAAI.V30I1.10295](https://doi.org/10.1609/AAAI.V30I1.10295). The paper motivates Double DQN as a way to reduce the overestimation of action values associated with standard Q-learning/DQN.
+## Implementation
 
-## What the agent learns
+The project contains a complete, modular training and evaluation implementation:
 
-The Mario environment produces image observations. These are transformed into a compact, consistent representation before being passed to a convolutional neural network. Recent frames are stacked to provide temporal context.
+| File | Responsibility |
+|---|---|
+| `code/environment.py` | Super Mario Bros environment creation, two-action Joypad wrapper, frame skipping, grayscale conversion, resize to 84 × 84, and four-frame stacking |
+| `code/mario_dqn.py` | Tutorial-style CNN, separate online/target Q-networks, disk-backed replay memory, epsilon-greedy agent, Double DQN target, optimization, and checkpoints |
+| `code/train.py` | Training loop, reproducible seeds, episode metrics, best/latest checkpoints, and graceful save on interruption |
+| `code/evaluate.py` | Separate greedy evaluation using a saved checkpoint, per-episode CSV, mean and standard deviation |
+| `code/smoke_test.py` | Environment reset/step and observation-shape check |
+| `code/test_core.py` | CPU unit tests for the CNN, frozen target network, learning update, and checkpoint round-trip |
+| `requirements-mario.txt` | Isolated legacy Gym/NES dependency set |
 
-The agent maintains an online action-value network and a target network. It selects actions with an epsilon-greedy policy during training, stores transitions in replay memory, samples mini-batches, and updates the online network using a Double DQN target.
+### Observation and action design
 
-### Double DQN target
+The environment is reduced to grayscale 84 × 84 frames. Four consecutive frames are stacked, giving the network an input tensor of shape **(4, 84, 84)**. The action space follows the supplied tutorial:
 
-The online network selects the next action:  a* = argmax_a Q_online(s', a; theta)
+- Action 0: walk right.
+- Action 1: jump right.
 
-The target network evaluates the selected action:  y = r + gamma * (1 - done) * Q_target(s', a*; theta_target)
+The wrapper repeats each selected action for four frames and accumulates the reward. Replay observations are stored as uint8 in a disk-backed circular buffer to avoid keeping the entire image replay history in RAM.
 
-For a true terminal transition, the bootstrap term is removed. Action selection and action evaluation are separated to reduce overestimation.
+### Double DQN update
 
-## Implementation workflow
+For each sampled transition, the online network chooses the next action:
 
-1. Create and validate the Mario environment in an isolated Python environment.
-2. Apply the tutorial's observation wrappers and confirm the final observation shape and action space.
-3. Build the convolutional online and target Q-networks.
-4. Implement epsilon-greedy action selection.
-5. Store state, action, reward, next state, and termination information in replay memory.
-6. Sample mini-batches and compute the Double DQN target.
-7. Optimize the online network and periodically synchronize the target network.
-8. Record episode return, episode length, exploration rate, loss, and environment steps.
-9. Save checkpoints and training logs.
-10. Evaluate the saved policy separately from exploratory training.
+`a* = argmax_a Q_online(s', a; theta)`
 
-## Technology
+The target network evaluates that action:
 
-- Python
-- PyTorch and TorchVision
-- Gym-based Super Mario environment
-- NumPy
-- Convolutional neural networks
-- Experience replay and target networks
-- Double DQN
+`y = r + gamma * (1 - terminated) * Q_target(s', a*; theta_target)`
 
-## Environment and reproducibility notes
+The online network is optimized with Smooth L1 loss. Target-network parameters are frozen between periodic synchronization steps. Truncated time-limit transitions are recorded separately from true terminal transitions so the target does not incorrectly suppress bootstrapping at a time limit.
 
-The PyTorch tutorial uses an older Gym ecosystem and pinned versions of supporting packages. Do not install those dependencies into the Flappy Bird environment. Use a dedicated virtual environment and verify compatibility among Python, Gym/Gymnasium, gym-super-mario-bros, nes-py, NumPy, PyTorch, TorchVision, TensorDict, and TorchRL before training.
+## Setup
 
-First validate that the emulator imports, the environment resets, one action can be stepped, and the returned observation matches the model input. A successful import or network forward pass alone is not evidence that the game agent has learned.
+Use a dedicated **Python 3.10** environment for the legacy Gym/NES emulator stack. Do not install these dependencies into the Flappy Bird environment.
 
-Do not redistribute ROM files or copyrighted game assets.
+From this folder:
 
-## Experiment status
+```bash
+python -m venv .venv
+```
 
-**Current status: documentation and implementation plan prepared; gameplay training and evaluation pending.**
+Activate the environment, install a PyTorch and TorchVision pair supported by the machine from the [official PyTorch installer](https://pytorch.org/get-started/locally/), then install the project dependencies:
 
-No reward curve, success-rate claim, trained checkpoint, or gameplay-performance result is reported here. Once implementation is complete, record Python and dependency versions, operating system, compute device, environment ID, wrappers, observation shape, preprocessing, random seed, optimizer, learning rate, discount factor, epsilon schedule, replay capacity, batch size, target update schedule, training returns, episode lengths, loss, checkpoint path, and separate evaluation metrics.
+```bash
+python -m pip install -r requirements-mario.txt
+```
 
-## Related repository material
+The NES emulator package may require native build tools on Windows if a compatible wheel is unavailable. The upstream PyTorch tutorial itself uses a legacy Gym stack and explicitly warns that Gym is unmaintained; this isolated environment is intentional.
 
+## Run
+
+Run commands from `projects/mario_double_dqn/`.
+
+First run the environment smoke test:
+
+```bash
+python code/smoke_test.py
+```
+
+Run the CPU core tests:
+
+```bash
+python code/test_core.py
+```
+
+Start training (the tutorial recommends a long training horizon; 40,000 episodes is the long-run setting):
+
+```bash
+python code/train.py --episodes 40000 --seed 42
+```
+
+For a short integration check, limit the run:
+
+```bash
+python code/train.py --episodes 1 --max-steps 200 --seed 42
+```
+
+Evaluate a saved policy separately from exploratory training:
+
+```bash
+python code/evaluate.py --checkpoint checkpoints/mario/best_mario_double_dqn.pt --episodes 20
+```
+
+Add `--render` to the smoke test, training, or evaluation command to open the game window.
+
+## Outputs and reproducibility
+
+Training writes `checkpoints/mario/training_metrics.csv`, a best checkpoint, and a latest checkpoint. Replay observations are written to `replay_memory/`. Evaluation writes a separate CSV under `evaluation/` by default. These generated files are ignored by Git; do not commit emulator ROMs or game assets.
+
+The training CSV records episode return, length, epsilon, mean loss, mean Q-value, flag completion, and elapsed time. The evaluation CSV records episode return, length, and whether the flag was reached. Keep training and evaluation data separate.
+
+## Validation status
+
+The CNN forward pass, Double DQN target calculation, frozen target-network gradients, and online-network backward pass were validated on a CPU PyTorch runtime during implementation. The committed `test_core.py` provides repeatable unit tests for these components and checkpoint handling.
+
+**End-to-end emulator smoke testing, Mario training, and gameplay evaluation are environment-dependent and are not represented as completed results until those commands have run successfully on a machine with the NES/Gym dependencies installed.** No gameplay score, trained checkpoint, or success-rate claim is fabricated.
+
+## Further reading
+
+- [Official PyTorch Mario tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html)
+- [Double DQN research paper (AAAI 2016)](https://arxiv.org/abs/1509.06461)
 - [Deep RL and DQN notes](../../docs/DEEP_RL_DQN.md)
-- [Setup guide](../../docs/SETUP_GUIDE.md)
 - [Experiment guide](../../docs/EXPERIMENT_GUIDE.md)
-- [Execution status](../../docs/EXECUTION_STATUS.md)
-
-## Attribution
-
-The implementation is based on the supplied coursework assignment and the PyTorch tutorial linked above. Cite the Double DQN paper when describing the algorithm, and retain applicable upstream notices when adapting tutorial code.
+- [Repository execution status](../../docs/EXECUTION_STATUS.md)
