@@ -19,11 +19,11 @@ This page separates code/architecture checks from actual environment training an
 | Flappy Bird evaluation data | **Published** | Evaluation CSV committed under `projects/flappy_bird_dqn/results/` |
 | Flappy Bird visualizations | **Published** | Two PNG files are committed under `projects/flappy_bird_dqn/results/` |
 | Repository artifacts | **Published** | Evaluation CSV, training log, and two PNG visualizations are available in the results directory |
-| Mario Double DQN implementation | **Code committed** | CNN, separate online/target networks, disk-backed replay, preprocessing, training, evaluation, smoke-test and unit-test scripts are committed under `projects/mario_double_dqn/code/` |
+| Mario Double DQN implementation | **Implemented** | Tutorial-aligned CNN, online/target networks, disk-backed replay, frame preprocessing, training, checkpointing, greedy evaluation, smoke test and core tests are committed under `projects/mario_double_dqn/code/` |
 | Mario Double DQN core validation | **Passed in GitHub Actions** | Python compileall and `code/test_core.py` completed successfully on Python 3.11 / CPU PyTorch; [workflow run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44281102262) |
 | Mario emulator smoke test | Pending | Requires the isolated Gym/NES dependencies and a local emulator run |
 | Mario gameplay training/evaluation | Pending | No game-playing run or reward claim is recorded yet; run the documented training and separate evaluation commands to produce evidence |
-| Mario game training and evaluation | Pending | Environment compatibility, smoke test, training, and separate evaluation remain |
+
 
 ## Flappy Bird DQN: completed local run
 
@@ -114,11 +114,10 @@ These values were recalculated from the recorded episode outputs and greedy-eval
 
 ### Mario
 
-1. Create the isolated environment described in `projects/mario_double_dqn/README.md`.
-2. Install the pinned Gym/NES and PyTorch dependencies; resolve any Windows native build requirement for `nes-py`.
-3. Run `python code/test_core.py` and `python code/smoke_test.py` from the Mario project folder.
-4. Run a short integration episode, then launch the long training schedule.
-5. Evaluate the saved checkpoint separately and publish only the resulting measured logs and metrics.
+1. Install the dedicated Python 3.10 environment and the pinned Gym/NES/PyTorch dependencies described in `projects/mario_double_dqn/README.md`.
+2. Resolve any Windows native build requirement for `nes-py`, then run `python code/smoke_test.py` from the Mario project folder.
+3. Run the documented training schedule and retain its metrics/checkpoints.
+4. Evaluate the saved checkpoint separately; only then add measured gameplay results.
 
 ## Integrity rule
 
