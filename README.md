@@ -41,6 +41,7 @@ The explanations follow the supplied course PDFs and project assignment material
 │   ├── flappy_bird_dqn/
 │   │   ├── README.md
 │   │   ├── EXPERIMENT_RESULTS.md
+│   │   ├── results/
 │   │   └── assigned_implementation/
 │   └── mario_double_dqn/
 ├── experiments/
@@ -58,6 +59,7 @@ The Flappy Bird project applies value-based reinforcement learning to a game-pla
 
 - [Flappy Bird project guide](projects/flappy_bird_dqn/README.md)
 - [Measured experiment results and limitations](projects/flappy_bird_dqn/EXPERIMENT_RESULTS.md)
+- [Result artifact staging instructions](projects/flappy_bird_dqn/results/README.md)
 
 The assigned implementation is the starting codebase for this project. Its inspected target calculation uses the maximum output from the target network, which is standard DQN rather than Double DQN. Preserve applicable original license and attribution notices when using or redistributing source files.
 
