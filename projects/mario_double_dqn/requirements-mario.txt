@@ -1,0 +1,9 @@
+# Create a dedicated Python 3.10 environment for the legacy NES/Gym stack.
+# Install a PyTorch build appropriate for the machine from https://pytorch.org/get-started/locally/
+torch>=2.2,<3.0
+torchvision>=0.17,<1.0
+numpy==1.26.4
+gym==0.26.2
+gym-super-mario-bros==7.4.0
+nes-py==8.2.1
+Pillow>=10.0,<13.0
