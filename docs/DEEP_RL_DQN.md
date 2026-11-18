@@ -110,7 +110,7 @@ The supplied FlappyBird_DQN_Code.pdf points to the assigned implementation and n
 
 ## 11. Mario Double DQN project
 
-The supplied assignment asks for a Mario-playing agent using Double DQN and points to the [official PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). Its research basis is the Double DQN method introduced by van Hasselt, Guez, and Silver in [Deep Reinforcement Learning with Double Q-Learning (2016)](https://arxiv.org/abs/1509.06461). The tutorial workflow includes:
+The supplied assignment asks for a Mario-playing agent using Double DQN and points to the [official PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). Its research basis is the Double DQN method introduced by van Hasselt, Guez, and Silver in [Deep Reinforcement Learning with Double Q-Learning (2016)](https://arxiv.org/abs/1509.06461). A modular implementation is committed in [projects/mario_double_dqn/code/](../projects/mario_double_dqn/code/). The implementation includes:
 - Frame preprocessing, skipping, resizing, and stacking.
 - A convolutional neural network for visual observations.
 - Replay memory.
