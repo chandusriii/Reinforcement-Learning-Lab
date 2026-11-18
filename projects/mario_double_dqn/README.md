@@ -99,7 +99,7 @@ To continue a chunk, start the workflow again with `resume=true` and enter the p
 
 The hosted runner is CPU-only. For faster training, run the same command on a local machine with a compatible GPU and sufficient free disk space. Do not mix checkpoints with replay directories from different runs.
 
-Here `--episodes` means additional episodes when resuming. Keep the latest checkpoint, `training_metrics.csv`, and the replay-memory directory together. The resume loader checks that the checkpoint and replay files come from the same save point and trims any CSV rows written after that checkpoint. Resume specifically requires the matching replay directory; an evaluation-only checkpoint load does not. Older checkpoints created before persistent replay metadata was added cannot be resumed safely.
+Here `--episodes` means additional episodes when resuming. Keep the latest checkpoint, `training_metrics.csv`, and the replay-memory directory together. The resume loader checks that the checkpoint and replay files come from the same save point and trims any CSV rows written after that checkpoint. Checkpoints also preserve Python, NumPy, Torch, and CUDA RNG states. Resume specifically requires the matching replay directory; an evaluation-only checkpoint load does not. Older checkpoints created before persistent replay metadata was added cannot be resumed safely.
 
 For a short integration check, limit the run:
 
@@ -136,7 +136,7 @@ The faster-decay experiment reduced exploration quickly but produced a weaker gr
 
 The following checks passed:
 
-- Python compileall and CPU unit tests, including deterministic Double DQN target selection, terminal masking, persistent replay/checkpoint resume, and loading a policy for evaluation with a fresh replay directory: [latest core-test run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44332361271).
+- Python compileall and CPU unit tests, including deterministic Double DQN target selection, terminal masking, persistent replay/checkpoint resume, and loading a policy for evaluation with a fresh replay directory: [latest core-test run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44335418978).
 - NES emulator startup, reset, frame preprocessing, and step smoke test.
 - A fresh 2-episode real-emulator run followed by a 1-episode resume from the saved latest checkpoint and replay memory; training continued at episode 3 with a nonzero TD loss.
 - Greedy evaluation successfully loaded that trained checkpoint using a fresh, empty replay directory.
