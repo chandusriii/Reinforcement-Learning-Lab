@@ -23,6 +23,7 @@ This page separates code/architecture checks from actual environment training an
 | Mario Double DQN implementation | **Implemented** | Tutorial-aligned CNN, online/target networks, disk-backed replay, frame preprocessing, training, checkpointing, greedy evaluation, smoke test and core tests are committed under `projects/mario_double_dqn/code/` |
 | Mario Double DQN core validation | **Passed in GitHub Actions** | Compileall and CPU tests for Double DQN target selection, terminal masking, replay resume, and evaluation-only checkpoint loading; [latest workflow run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44332361271) |
 | Mario emulator smoke test | **Passed in GitHub Actions** | Python 3.10, Gym 0.26.2, gym-super-mario-bros 7.4.0, nes-py 8.2.1; reset, step, and 4 × 84 × 84 observation checks passed; [resume workflow](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44332415242) also validates a real environment train → resume → evaluate cycle |
+| Mario long training | **In progress** | Initial 1,000-episode seeded chunk started in [GitHub Actions](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44335214352); 40,000-episode target is not yet reached |
 | Mario 40-episode bounded integration run + 10-episode greedy evaluation | **Completed** | Mean training return 537.78; best 1,236; greedy evaluation mean 626.0, std 0.0; flag reached 0/10 |
 | Mario 100-episode bounded faster-decay integration run + 10-episode greedy evaluation | **Completed** | Mean training return 532.24; best 1,346; greedy evaluation mean 231.0, std 0.0; flag reached 0/10 |
 | Mario core unit tests | **Passed** | Includes Double DQN action selection, terminal masking, checkpoint load, and persistent replay-buffer resume; [GitHub Actions](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44328956974) |
@@ -121,7 +122,7 @@ These values were recalculated from the recorded episode outputs and greedy-eval
 
 ### Flappy Bird
 
-1. Run the updated seeded adapter on the Windows machine with a deliberate training budget, then run and retain seeded greedy evaluations.
+1. The first 20,000-episode seeded workflow run is underway. Inspect its result and uploaded artifact before deciding whether a continuation chunk is needed.
 2. Export a complete `pip freeze` record from that machine.
 3. The recorded historical best-reward log still lacks per-episode loss and telemetry; collect those metrics during any new training run.
 
