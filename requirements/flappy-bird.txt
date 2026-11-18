@@ -1,8 +1,10 @@
-# Initial dependency set; pin exact resolved versions after a successful environment test.
-torch
-torchvision
-numpy<2
-gymnasium
-pygame
-matplotlib
-flappy-bird-gymnasium
+# Flappy Bird environment and plotting dependencies (Python 3.11).
+# Install PyTorch separately using the official selector for the local OS/hardware:
+# https://docs.pytorch.org/get-started/locally/
+# The recorded Windows run used PyTorch 2.15.0+cpu. TorchVision is not required.
+numpy==1.26.4
+gymnasium==1.4.0
+pygame==2.6.1
+matplotlib==3.11.2
+flappy-bird-gymnasium==0.4.0
+PyYAML==6.0.3
