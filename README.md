@@ -1,18 +1,29 @@
 # Reinforcement Learning Lab
 
-A structured, experiment-driven repository for learning and implementing Reinforcement Learning (RL), from tabular methods to Deep Q-Networks (DQN) and Double DQN.
+A hands-on learning and implementation repository covering **Reinforcement Learning from first principles to Deep Reinforcement Learning**. It brings together structured notes, algorithm explanations, implementation work, game-playing projects, and reproducible experiments.
 
-> **Experiment integrity:** Results are recorded only after an experiment has actually run. The current repository documents the learning path and execution setup. Flappy Bird and Mario game-training runs are **pending**; no game-training reward, checkpoint, or learning curve is claimed yet.
+The goal is to make this repository useful as a learning resource: a student or engineer should be able to understand what RL is, how an agent learns from rewards, how the main algorithms differ, and how those ideas are implemented in practical environments.
 
 ## Learning roadmap
 
-| Stage | Topics / implementation | Status |
+| Section | Topics | Learning material and practical focus |
 |---|---|---|
-| 01 — Foundations | Agent, environment, state, action, reward, policy, return, discount factor, MDP, Bellman equations, exploration vs. exploitation | Notes to be organized |
-| 02 — Tabular RL | Dynamic Programming, Monte Carlo, Temporal-Difference learning, SARSA, Q-Learning | Notebook source reviewed; reproducible reruns pending |
-| 03 — Deep RL | Neural Q-functions, DQN, replay buffer, target network, epsilon-greedy exploration | Architecture reviewed; environment runs pending |
-| 04 — Projects | Flappy Bird DQN, Mario Double DQN | Not yet trained end-to-end |
-| 05 — Experiments | Configurations, seeds, evaluation, reward curves, checkpoints | To be populated with measured runs |
+| **01 — Foundations** | Agent, environment, state, action, reward, return, policy, discount factor, MDP, Markov property, value functions, Bellman equations, exploration vs. exploitation | Core concepts, mathematical intuition, grid-world examples, and the agent–environment interaction loop. |
+| **02 — Tabular RL** | Dynamic Programming, Monte Carlo, Temporal-Difference learning, SARSA, Q-Learning | Bellman backups, episode-based returns, TD error, on-policy vs. off-policy learning, Cliff Walking, and Gymnasium interaction. |
+| **03 — Deep RL** | Neural Q-functions, DQN, replay buffer, target network, epsilon-greedy exploration, Double DQN | Function approximation, training workflow, target calculations, stability techniques, and evaluation. |
+| **04 — Projects** | Flappy Bird DQN, Mario Double DQN | Applying value-based RL to game environments, understanding state/observation design, action selection, rewards, network architectures, and training pipelines. |
+| **05 — Experiments** | Configurations, seeds, evaluation, reward curves, checkpoints | Recording implementation choices, comparing agent behaviour, measuring episode returns, evaluating learned policies, and documenting observations. |
+
+## Learning notes
+
+The notes are organized as a progressive path:
+
+1. [RL Fundamentals](docs/RL_FUNDAMENTALS.md) — the agent–environment loop, reward and return, policy, MDP, Markov property, value functions, Bellman equations, and exploration/exploitation.
+2. [Tabular Reinforcement Learning](docs/TABULAR_RL.md) — Dynamic Programming, Monte Carlo, TD learning, SARSA, Q-Learning, Cliff Walking, and Gymnasium.
+3. [Deep Reinforcement Learning and DQN](docs/DEEP_RL_DQN.md) — neural Q-functions, DQN, replay memory, target networks, Double DQN, and game-agent workflows.
+4. [Learning Glossary](docs/LEARNING_GLOSSARY.md) — concise definitions for quick revision.
+
+The explanations follow the supplied course PDFs and project assignment materials, with additional notation and clarifying examples to connect the concepts to implementation.
 
 ## Repository structure
 
@@ -20,9 +31,12 @@ A structured, experiment-driven repository for learning and implementing Reinfor
 .
 ├── README.md
 ├── docs/
+│   ├── RL_FUNDAMENTALS.md
+│   ├── TABULAR_RL.md
+│   ├── DEEP_RL_DQN.md
+│   ├── LEARNING_GLOSSARY.md
 │   ├── EXECUTION_STATUS.md
-│   ├── SETUP_GUIDE.md
-│   └── RL_FUNDAMENTALS.md
+│   └── SETUP_GUIDE.md
 ├── notebooks/
 │   ├── tabular/
 │   └── deep_rl/
@@ -35,37 +49,41 @@ A structured, experiment-driven repository for learning and implementing Reinfor
 └── requirements/
 ```
 
-Folders for notebooks, projects, and experiments will be populated as implementations are added and validated.
+## Projects
 
-## Projects and references
+### Flappy Bird — Deep Q-Network (DQN)
 
-### Flappy Bird — DQN
-The reviewed reference implementation is [shradha-khapra/RL_DQN](https://github.com/shradha-khapra/RL_DQN). Its network consumes a 12-feature state vector, uses a 256-unit hidden layer, and outputs two action values. The reviewed training design includes a replay buffer, a target network, and epsilon-greedy action selection.
+The Flappy Bird project applies value-based reinforcement learning to a game-playing agent. The state-based network uses 12 input features, a 256-unit hidden layer, and two output action values (no-op and flap). The learning workflow uses experience replay, a target network, epsilon-greedy action selection, and reward-based updates.
 
-**Important algorithm note:** the inspected target calculation uses the maximum action value from the target network. That is standard DQN target selection/evaluation, not the Double DQN action-selection/evaluation split.
+[Read the Flappy Bird project documentation](projects/flappy_bird_dqn/README.md).
 
-The Gymnasium environment package is documented at [flappy-bird-gymnasium on PyPI](https://pypi.org/project/flappy-bird-gymnasium/) and in the [Gymnasium third-party environment catalogue](https://gymnasium.farama.org/v1.2.3/environments/third_party_environments/).
+The assigned implementation is the starting codebase for this project. Its inspected target calculation uses the maximum output from the target network, which is standard DQN rather than Double DQN. Preserve applicable original license and attribution notices when using or redistributing source files.
 
 ### Super Mario Bros — Double DQN
-The learning reference is the [official PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). It demonstrates a Double Deep Q-Network workflow with frame preprocessing, stacked observations, replay memory, and target-network learning.
 
-The tutorial's original dependency stack includes legacy Gym-based packages. Treat its environment setup as a compatibility-sensitive reference, not as a modern, guaranteed plug-and-play installation.
+The Mario assignment applies Double DQN to a visual game environment. The reference workflow covers observation preprocessing, frame stacking, a convolutional Q-network, replay memory, epsilon-greedy action selection, and separate online/target networks.
 
-## Reproducibility policy
+[Read the Mario Double DQN project documentation](projects/mario_double_dqn/README.md).
 
-For every experiment, record:
-- Python and package versions
-- Operating system and device (CPU/GPU)
-- Environment ID and wrappers
-- Hyperparameters and random seed
-- Number of training episodes/steps
-- Evaluation protocol and number of evaluation episodes
-- Mean and standard deviation of evaluation return
-- Checkpoint path and training-log path
-- Known warnings, failures, and deviations from the reference
+The assignment points to the [PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). Its original environment stack uses legacy Gym ecosystem packages, so dependency and operating-system compatibility should be checked before setup.
 
-Do not commit large generated checkpoints or raw game recordings unless needed; use Git LFS or release assets when appropriate. Preserve upstream attribution and license notices when adapting code.
+## Experiments and reproducibility
 
-## Current execution summary
+Every experiment should record:
+- Python and package versions.
+- Operating system and device (CPU/GPU).
+- Environment ID and wrappers.
+- Hyperparameters and random seed.
+- Number of training episodes/steps.
+- Evaluation protocol and number of evaluation episodes.
+- Mean and standard deviation of evaluation return.
+- Checkpoint path and training-log path.
+- Warnings, failures, and deviations from the implementation being followed.
 
-See [docs/EXECUTION_STATUS.md](docs/EXECUTION_STATUS.md) for what has and has not been executed.
+Training results, reward curves, and checkpoints are added only after the corresponding run has actually completed. This keeps the repository technically honest and makes experiments reproducible.
+
+See [Execution Notes](docs/EXECUTION_STATUS.md) and the [Setup Guide](docs/SETUP_GUIDE.md).
+
+## Learning principle
+
+The central idea of reinforcement learning is learning from interaction: **observe a state → choose an action → receive a reward → observe the next state → improve the decision-making strategy**. The sections in this repository build from that loop toward algorithms that learn value functions and neural-network-based game agents.
