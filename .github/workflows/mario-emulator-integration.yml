@@ -2,10 +2,6 @@ name: Mario Double DQN Emulator Integration
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "projects/mario_double_dqn/**"
-      - ".github/workflows/mario-emulator-integration.yml"
 
 jobs:
   mario-integration:
