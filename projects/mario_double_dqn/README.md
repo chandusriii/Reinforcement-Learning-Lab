@@ -83,6 +83,16 @@ Start training (the tutorial recommends a long training horizon; 40,000 episodes
 python code/train.py --episodes 40000 --seed 42
 ```
 
+Continue an interrupted run from its latest checkpoint:
+
+```bash
+python code/train.py --episodes 40000 --seed 42 \
+  --resume checkpoints/mario/latest_mario_double_dqn.pt \
+  --replay-dir replay_memory
+```
+
+Here `--episodes` means additional episodes when resuming. Keep the latest checkpoint, `training_metrics.csv`, and the replay-memory directory together. The resume loader checks that the checkpoint and replay files come from the same save point and trims any CSV rows written after that checkpoint. Older checkpoints created before persistent replay metadata was added cannot be resumed safely.
+
 For a short integration check, limit the run:
 
 ```bash
