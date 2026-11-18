@@ -66,7 +66,13 @@ Choose the PyTorch CPU/CUDA build from the [official installer selector](https:/
 python agent_eval.py flappybirdv0 --train --seed 42 --episodes 20000
 ```
 
-It saves the best policy weights as `runs/flappybirdv0.pt`, a latest weights snapshot as `runs/flappybirdv0_latest.pt`, and per-episode training metrics (return, steps, environment steps, epsilon, and mean loss) as `runs/flappybirdv0_training_seed_42.csv`. The latest file is a weights snapshot, not a full optimizer/replay-state resume checkpoint. For a reproducible, headless greedy evaluation:
+It saves the best policy weights as `runs/flappybirdv0.pt`, the latest weights snapshot, a full resumable checkpoint (`runs/flappybirdv0_resume.pt`), and per-episode metrics (return, steps, environment steps, epsilon, loss, and clipped observation count). The full checkpoint contains policy/target networks, optimizer, replay memory, exploration state, RNG states, and completed episode. Resume with the same seed and environment settings:
+
+```cmd
+python agent_eval.py flappybirdv0 --train --seed 42 --episodes 20000 --resume
+```
+
+Here `--episodes` is the number of additional episodes. The runner checkpoints every 500 episodes by default and retains the most recent completed checkpoint. A normal run with no `--resume` starts a fresh experiment. For a reproducible, headless greedy evaluation:
 
 ```cmd
 python agent_eval.py flappybirdv0 --seed 10042 --episodes 100
@@ -112,7 +118,7 @@ See [Experiment Results](EXPERIMENT_RESULTS.md) for the protocol, interpretation
 ## Warnings and Limitations
 
 - The raw LiDAR observation-space mismatch has been reproduced in GitHub Actions. Across 150 sampled observations, 2,944 individual values exceeded the declared [0, 1] Box; the maximum observed value was 1.0021062783. The environment's ray-intersection output therefore exceeds its advertised normalized upper bound. The seeded `agent_eval.py` adapter disables the premature passive checker and clips observations to the declared bounds before model input. The diagnostic records the raw values before correction and verifies that all values passed through the adapter satisfy the Box. The upstream mismatch remains documented rather than hidden.
-- The historical 13,604-episode training run and 100-episode evaluation were not recorded with a seed. The newer runner accepts explicit seeds; no new multi-seed performance estimate is claimed yet.
+- The historical 13,604-episode training run and 100-episode evaluation were not recorded with a seed. The new runner supports seeded, resumable long experiments; its train/resume/evaluate pipeline is covered by CI, but this is not a new long-run performance result.
 - The source training log records best-reward improvements, not every episode reward or loss.
 - The evaluation metrics describe this checkpoint and environment setup; they do not establish performance across other seeds or package versions.
 
