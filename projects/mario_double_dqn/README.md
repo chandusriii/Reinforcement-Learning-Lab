@@ -1,66 +1,74 @@
 # Super Mario Bros — Double Deep Q-Network (Double DQN)
 
-## Project overview
+## Assignment and objective
 
-This project explores an AI agent that learns to play Super Mario Bros through reinforcement learning. The agent observes processed game frames, selects an available action, receives reward feedback from the environment, and improves its action-value estimates over repeated interactions.
+The supplied assignment asks for a Mario-playing reinforcement-learning agent using **Double Deep Q-Networks (Double DQN)** and explicitly directs the student to complete the official PyTorch tutorial. The objective is to train an agent that learns to play through interaction with the game environment.
 
-The assignment specifies a Mario-playing agent using **Double Deep Q-Networks (Double DQN)** and links to the PyTorch tutorial as the implementation guide.
+This repository treats the PyTorch tutorial as the implementation guide and the Double DQN research paper as the algorithmic foundation. The project is documented and scoped; emulator training and evaluation are not yet claimed as completed.
 
-## Learning objectives
+## Primary sources
 
-- Understand how a visual game environment can be converted into observations suitable for a neural network.
-- Apply frame preprocessing, resizing, skipping, and stacking.
-- Use a convolutional neural network to estimate action values from image observations.
-- Understand experience replay and target networks.
-- Implement epsilon-greedy action selection.
-- Distinguish standard DQN from Double DQN.
-- Track training behaviour and evaluate the learned policy.
+1. **Implementation documentation:** [Train a Mario-playing RL Agent — PyTorch Tutorials](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). The tutorial covers visual-observation preprocessing, frame skipping and stacking, convolutional Q-networks, replay memory, epsilon-greedy action selection, online and target networks, and training.
+2. **Research paper:** Hado van Hasselt, Arthur Guez, and David Silver, [Deep Reinforcement Learning with Double Q-Learning](https://arxiv.org/abs/1509.06461), AAAI 2016, DOI: [10.1609/AAAI.V30I1.10295](https://doi.org/10.1609/AAAI.V30I1.10295). The paper motivates Double DQN as a way to reduce the overestimation of action values associated with standard Q-learning/DQN.
 
-## Architecture and learning workflow
+## What the agent learns
 
-1. **Observation preprocessing:** transform game frames into a consistent compact representation.
-2. **Frame stacking:** combine recent observations to provide temporal context.
-3. **Q-network:** use a convolutional neural network to estimate Q-values for available actions.
-4. **Action selection:** use epsilon-greedy exploration during training.
-5. **Experience replay:** store transitions and sample mini-batches for learning.
-6. **Double DQN target:** select the next action using the online network and evaluate it using the target network.
-7. **Optimization:** update online network parameters from the TD loss.
-8. **Evaluation:** test the learned policy separately from exploratory training and record task performance.
+The Mario environment produces image observations. These are transformed into a compact, consistent representation before being passed to a convolutional neural network. Recent frames are stacked to provide temporal context.
+
+The agent maintains an online action-value network and a target network. It selects actions with an epsilon-greedy policy during training, stores transitions in replay memory, samples mini-batches, and updates the online network using a Double DQN target.
 
 ### Double DQN target
 
-`a* = argmax_a Q_online(s', a)`
+The online network selects the next action:  a* = argmax_a Q_online(s', a; theta)
 
-`y = r + gamma Q_target(s', a*)`
+The target network evaluates the selected action:  y = r + gamma * (1 - done) * Q_target(s', a*; theta_target)
 
-For a true terminal transition, the bootstrap term is removed.
+For a true terminal transition, the bootstrap term is removed. Action selection and action evaluation are separated to reduce overestimation.
+
+## Implementation workflow
+
+1. Create and validate the Mario environment in an isolated Python environment.
+2. Apply the tutorial's observation wrappers and confirm the final observation shape and action space.
+3. Build the convolutional online and target Q-networks.
+4. Implement epsilon-greedy action selection.
+5. Store state, action, reward, next state, and termination information in replay memory.
+6. Sample mini-batches and compute the Double DQN target.
+7. Optimize the online network and periodically synchronize the target network.
+8. Record episode return, episode length, exploration rate, loss, and environment steps.
+9. Save checkpoints and training logs.
+10. Evaluate the saved policy separately from exploratory training.
 
 ## Technology
 
 - Python
-- PyTorch
+- PyTorch and TorchVision
+- Gym-based Super Mario environment
+- NumPy
 - Convolutional neural networks
-- Reinforcement Learning / Double DQN
-- Gym-based Super Mario environment (tutorial dependency stack)
+- Experience replay and target networks
+- Double DQN
 
-## Reference implementation guide
+## Environment and reproducibility notes
 
-The supplied assignment points to the [official PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). The tutorial demonstrates frame preprocessing, stacked observations, replay memory, online and target networks, and Double DQN learning.
+The PyTorch tutorial uses an older Gym ecosystem and pinned versions of supporting packages. Do not install those dependencies into the Flappy Bird environment. Use a dedicated virtual environment and verify compatibility among Python, Gym/Gymnasium, gym-super-mario-bros, nes-py, NumPy, PyTorch, TorchVision, TensorDict, and TorchRL before training.
 
-## Environment compatibility
-
-The tutorial uses a legacy Gym-based dependency stack. Keep Mario in an isolated virtual environment and verify compatible versions before installation. The NES emulator dependency may require native build tools on Windows if a compatible wheel is unavailable. See the [setup guide](../../docs/SETUP_GUIDE.md).
+First validate that the emulator imports, the environment resets, one action can be stepped, and the returned observation matches the model input. A successful import or network forward pass alone is not evidence that the game agent has learned.
 
 Do not redistribute ROM files or copyrighted game assets.
 
-## Experiment and evaluation
+## Experiment status
 
-Record the environment version, wrappers, preprocessing settings, random seed, training steps, optimizer settings, epsilon schedule, replay-buffer configuration, target update schedule, episode returns, evaluation protocol, and checkpoint metadata.
+**Current status: documentation and implementation plan prepared; gameplay training and evaluation pending.**
 
-The actual emulator training run and evaluation must be executed before adding performance claims, reward curves, or checkpoints. The project documentation describes the intended implementation and learning workflow; it does not claim unverified gameplay results.
+No reward curve, success-rate claim, trained checkpoint, or gameplay-performance result is reported here. Once implementation is complete, record Python and dependency versions, operating system, compute device, environment ID, wrappers, observation shape, preprocessing, random seed, optimizer, learning rate, discount factor, epsilon schedule, replay capacity, batch size, target update schedule, training returns, episode lengths, loss, checkpoint path, and separate evaluation metrics.
 
-## Further reading
+## Related repository material
 
-- [Experiment guide](../../docs/EXPERIMENT_GUIDE.md)
 - [Deep RL and DQN notes](../../docs/DEEP_RL_DQN.md)
-- [Project references](../../docs/REFERENCES.md)
+- [Setup guide](../../docs/SETUP_GUIDE.md)
+- [Experiment guide](../../docs/EXPERIMENT_GUIDE.md)
+- [Execution status](../../docs/EXECUTION_STATUS.md)
+
+## Attribution
+
+The implementation is based on the supplied coursework assignment and the PyTorch tutorial linked above. Cite the Double DQN paper when describing the algorithm, and retain applicable upstream notices when adapting tutorial code.
