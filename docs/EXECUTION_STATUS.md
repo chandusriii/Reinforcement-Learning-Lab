@@ -82,7 +82,7 @@ The model checkpoint remains local and is intentionally not published.
 - The source training log does not contain every episode reward, episode length, loss, or environment-step count. These metrics cannot be reconstructed from the best-reward log.
 - The 100-episode evaluation is a single checkpoint evaluation. It demonstrates observed performance under this run's setup, not guaranteed generalization to other environment versions or seeds.
 
-## Previously reported tabular run
+## Tabular RL recorded notebook results
 
 The earlier session reported these single-run values from a recreated CliffWalking environment:
 
