@@ -1,0 +1,10 @@
+# Compatibility-sensitive reference stack from the official PyTorch Mario tutorial.
+# Resolve and pin exact versions in a dedicated environment after smoke testing.
+numpy<2
+torch
+torchvision
+gym==0.26.2
+gym-super-mario-bros==7.4.0
+nes-py
+tensordict==0.3.0
+torchrl==0.3.0
