@@ -59,7 +59,7 @@ The following files were generated on the Windows machine:
 | `assigned_implementation/runs/flappybird_dqn_performance.png` | Training best-reward events and evaluation rewards |
 | `assigned_implementation/runs/flappybird_dqn_evaluation_v2.png` | Evaluation rewards with a 10-episode moving average |
 
-These are local artifact paths. The CSV and PNG files must be added to Git separately before they become downloadable from the GitHub repository. Model weights are intentionally not included in this documentation commit.
+The evaluation CSV and training log have been published under [`results/`](results/README.md). The two PNG visualizations remain local and were not found in the GitHub results directory at the time of verification. The model checkpoint remains local and is intentionally not included in the repository.
 
 ## Issues observed
 
