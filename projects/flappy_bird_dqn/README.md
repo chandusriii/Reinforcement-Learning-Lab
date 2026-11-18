@@ -78,7 +78,7 @@ To measure the reported Gymnasium observation-space warning rather than suppress
 python diagnose_observations.py --episodes 10 --max-steps 2000 --seed 42
 ```
 
-It reports the raw observation minimum/maximum and the number of observations/values outside the declared Box. It deliberately does not clip or alter the environment output.
+It measures the raw environment range before correction, counts the out-of-Box values, and verifies that every observation returned by the bounded adapter satisfies the declared Box. The third-party environment itself is not modified.
 
 Manual keyboard play:
 
