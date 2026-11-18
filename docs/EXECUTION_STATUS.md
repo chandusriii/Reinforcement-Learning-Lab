@@ -16,11 +16,11 @@ This page separates code/architecture checks from actual environment training an
 | Flappy Bird end-to-end training | **Completed locally** | Training log records a best reward of 5.6 at episode 13,604 |
 | Flappy Bird checkpoint | **Saved locally** | `runs/flappybirdv0.pt`; checkpoint is saved when a new best episode reward is reached |
 | Flappy Bird greedy evaluation | **Completed locally** | 100 episodes; mean 1.455, population standard deviation 0.907, max 5.6, min -0.2 |
-| Flappy Bird evaluation data | **Published** | `projects/flappy_bird_dqn/results/flappybirdv0_evaluation.csv` is committed to the repository |
-| Flappy Bird visualizations | **Generated locally; publication pending** | Two PNG plots exist in the local `runs/` folder; they were not found in the GitHub `results/` directory during verification |
+| Flappy Bird evaluation data | **Published** | Evaluation CSV committed under `projects/flappy_bird_dqn/results/` |
+| Flappy Bird visualizations | **Published** | Two PNG files are committed under `projects/flappy_bird_dqn/results/` |
+| Repository artifacts | **Published** | Evaluation CSV, training log, and two PNG visualizations are available in the results directory |
 | Mario Double DQN architecture | Preliminary shape/finite-output check reported | Does not validate emulator integration, optimization, or gameplay |
 | Mario game training and evaluation | Pending | Environment compatibility, smoke test, training, and separate evaluation remain |
-| Repository artifacts | **Partially published** | Evaluation CSV and training log are on GitHub. PNG visualizations remain local and need to be uploaded separately |
 
 ## Flappy Bird DQN: completed local run
 
@@ -49,7 +49,7 @@ These are the versions reported during setup. A fresh `pip freeze` export should
 - The best reward in the training log was **5.6 at episode 13,604**.
 - The source saves the policy checkpoint when a new best episode reward is observed.
 - Local checkpoint: `projects/flappy_bird_dqn/assigned_implementation/runs/flappybirdv0.pt`.
-- Local training log: `projects/flappy_bird_dqn/assigned_implementation/runs/flappybirdv0.log`.
+- Published training log: [`flappybirdv0.log`](../projects/flappy_bird_dqn/results/flappybirdv0.log).
 
 The best-reward log records improvements, not every episode's return. The training curve therefore represents best-so-far reward events, not a per-episode reward series.
 
@@ -65,12 +65,14 @@ A separate evaluation copy was used so the assigned `agent.py` remained unchange
 | Maximum episode reward | **5.6** |
 | Minimum episode reward | **-0.2** |
 
-Local evaluation artifacts:
-- `runs/flappybirdv0_evaluation.csv` — per-episode rewards.
-- `runs/flappybird_dqn_performance.png` — training best-reward events and evaluation rewards.
-- `runs/flappybird_dqn_evaluation_v2.png` — evaluation rewards and 10-episode moving average.
+Published artifacts:
 
-The evaluation CSV and training log have been committed under `projects/flappy_bird_dqn/results/`. The two PNG visualizations remain in the local `assigned_implementation/runs/` folder and were not found in the public results directory at the time of this check. The model checkpoint remains local and is intentionally not published.
+- [Evaluation CSV](../projects/flappy_bird_dqn/results/flappybirdv0_evaluation.csv)
+- [Training log](../projects/flappy_bird_dqn/results/flappybirdv0.log)
+- [Figure 1](../projects/flappy_bird_dqn/results/Figure_1.png)
+- [Figure 2](../projects/flappy_bird_dqn/results/fig%202.png)
+
+The model checkpoint remains local and is intentionally not published.
 
 ### Warnings and limitations
 
@@ -94,19 +96,21 @@ These are historical, preliminary results from the prior session. They have not 
 ## Remaining work
 
 ### Flappy Bird
-1. Upload the two generated PNG visualizations to `projects/flappy_bird_dqn/results/` (the CSV and training log are already published).
-2. Save a complete package lock/export from the working virtual environment.
-3. Investigate the Gymnasium observation-space warnings.
-4. Optionally repeat evaluation with documented seeds and a fixed protocol.
-5. If further training comparisons are desired, record per-episode metrics, episode lengths, loss, and environment steps rather than only best-reward events.
+
+1. Save a complete package lock/export from the working virtual environment.
+2. Investigate the Gymnasium observation-space warnings.
+3. Optionally repeat evaluation with documented seeds and a fixed protocol.
+4. If further training comparisons are desired, record per-episode metrics, episode lengths, loss, and environment steps rather than only best-reward events.
 
 ### Tabular RL
+
 1. Add/review the SARSA and Q-Learning notebooks in the repository.
 2. Reproduce both algorithms from committed notebooks.
 3. Compare them with matched environment settings and multiple seeds.
 4. Reproduce Cliff Walking results and record the policy/evaluation protocol.
 
 ### Mario
+
 1. Create a separate environment from Flappy Bird's environment.
 2. Resolve compatible versions of Gym, Gym-Super-Mario-Bros, nes-py, NumPy, PyTorch, TorchVision, TensorDict, and TorchRL.
 3. Verify emulator startup and one reset/step before training.
