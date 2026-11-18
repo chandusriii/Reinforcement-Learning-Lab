@@ -45,7 +45,15 @@ The explanations follow the supplied course PDFs and project assignment material
 │   │   ├── results/
 │   │   └── assigned_implementation/
 │   ├── mario_double_dqn/
-│   │   └── README.md
+│   │   ├── README.md
+│   │   ├── requirements-mario.txt
+│   │   └── code/
+│   │       ├── environment.py
+│   │       ├── mario_dqn.py
+│   │       ├── train.py
+│   │       ├── evaluate.py
+│   │       ├── smoke_test.py
+│   │       └── test_core.py
 │   └── tabular_rl/
 │       ├── README.md
 │       └── notebooks/
