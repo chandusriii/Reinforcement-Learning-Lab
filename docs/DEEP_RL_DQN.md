@@ -94,9 +94,11 @@ Separating selection and evaluation is designed to reduce overestimation from us
 ## 10. Flappy Bird DQN project
 
 The assigned Flappy Bird implementation uses a state-based neural network:
-- 12 input features.
+- 180 LiDAR observations in the executed configuration (use_lidar=True).
 - One hidden layer with 256 units and ReLU.
 - 2 output action values: no-op and flap.
+
+The implementation derives the network input dimension from env.observation_space.shape[0]. The installed environment can also expose a 12-feature non-LiDAR observation when LiDAR is disabled, but that was not the configuration used for the reported run.
 - Experience replay.
 - Online and target networks.
 - Epsilon-greedy action selection.
@@ -108,7 +110,7 @@ The supplied FlappyBird_DQN_Code.pdf points to the assigned implementation and n
 
 ## 11. Mario Double DQN project
 
-The supplied assignment asks for a Mario-playing agent using Double DQN and points to the PyTorch Mario RL tutorial. The tutorial workflow includes:
+The supplied assignment asks for a Mario-playing agent using Double DQN and points to the [official PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). Its research basis is the Double DQN method introduced by van Hasselt, Guez, and Silver in [Deep Reinforcement Learning with Double Q-Learning (2016)](https://arxiv.org/abs/1509.06461). The tutorial workflow includes:
 - Frame preprocessing, skipping, resizing, and stacking.
 - A convolutional neural network for visual observations.
 - Replay memory.
