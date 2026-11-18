@@ -103,7 +103,7 @@ def main():
     )
 
     if args.resume is not None:
-        saved_episode = agent.load(args.resume)
+        saved_episode = agent.load(args.resume, require_replay=True)
         if saved_episode < 1:
             raise ValueError("The supplied checkpoint has no completed-episode marker.")
         best_return, fieldnames = _read_and_reconcile_metrics(log_path, saved_episode)
