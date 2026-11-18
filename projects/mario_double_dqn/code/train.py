@@ -27,6 +27,7 @@ def parse_args():
     parser.add_argument("--burnin", type=int, default=10_000)
     parser.add_argument("--learn-every", type=int, default=3)
     parser.add_argument("--sync-every", type=int, default=10_000)
+    parser.add_argument("--epsilon-decay", type=float, default=0.99999975)
     parser.add_argument("--render", action="store_true")
     parser.add_argument("--resume", type=Path, default=None)
     return parser.parse_args()
@@ -55,6 +56,7 @@ def main():
         burnin=args.burnin,
         learn_every=args.learn_every,
         sync_every=args.sync_every,
+        epsilon_decay=args.epsilon_decay,
     )
     if args.resume:
         agent.load(args.resume)
