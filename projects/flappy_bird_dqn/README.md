@@ -78,6 +78,14 @@ Here `--episodes` is the number of additional episodes. The runner checkpoints e
 python agent_eval.py flappybirdv0 --seed 10042 --episodes 100
 ```
 
+### Long training and resume
+
+The repository includes a GitHub Actions workflow for the full 20,000-episode seeded run. Open **Actions → Flappy Bird Long Training → Run workflow** and keep the defaults for the first run. The workflow compiles the project, trains, evaluates the best checkpoint over 100 greedy episodes, and publishes the resume checkpoint, per-episode metrics, model weights, and evaluation CSV as the `flappy-long-training-state` artifact.
+
+A completed run can be continued: start the same workflow again, set `resume=true`, and provide the previous workflow run ID in `resume_run_id`. Keep the same seed. The runner restores optimizer, target network, replay memory, RNG states, exploration rate, and training metrics; `episodes` means additional episodes for that run.
+
+For local Windows training, use the same command pattern. Stop only between saved checkpoints when possible; the latest full resume checkpoint is written every 500 episodes.
+
 Use `--render` to watch an evaluation. Greedy evaluation writes per-episode reward and step counts to `runs/flappybirdv0_evaluation_seed_10042.csv`. The original coursework `agent.py` remains unchanged and is retained for source comparison; the bounded runner is recommended for new experiments.
 
 To measure the reported Gymnasium observation-space warning rather than suppress it, run this diagnostic from the same folder:
