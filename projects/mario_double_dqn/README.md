@@ -109,10 +109,10 @@ The Mario environment has been run end-to-end in GitHub Actions using Python 3.1
 
 | Run | Training | Exploration decay | Training mean return | Best training return | Greedy evaluation (10 episodes) | Flag reached |
 |---|---:|---:|---:|---:|---:|---:|
-| Tutorial schedule | 40 episodes | 0.99999975 | 537.78 | 1,236 (episode 39) | 626.0 ± 0.0 | 0/10 |
-| Faster-decay experiment | 100 episodes | 0.9995 | 532.24 | 1,346 (episode 26) | 231.0 ± 0.0 | 0/10 |
+| Tutorial-default epsilon schedule (bounded integration run) | 40 episodes | 0.99999975 | 537.78 | 1,236 (episode 39) | 626.0 ± 0.0 | 0/10 |
+| Faster-decay comparison (bounded integration run) | 100 episodes | 0.9995 | 532.24 | 1,346 (episode 26) | 231.0 ± 0.0 | 0/10 |
 
-The faster-decay experiment reduced exploration quickly but produced a weaker greedy evaluation in this run. The 40-episode run retained the tutorial's slow decay and gave the better evaluated checkpoint. These short experiments validate the complete pipeline and provide measured results; **they do not demonstrate that Mario has learned to finish the level**. The PyTorch tutorial recommends a substantially longer training horizon (at least 40,000 episodes) for meaningful gameplay learning. See [the recorded CSVs and run artifacts](results/README.md).
+The faster-decay experiment reduced exploration quickly but produced a weaker greedy evaluation in this run. The 40-episode bounded integration run retained the tutorial's default slow decay and gave the better evaluated checkpoint. These short experiments validate the complete pipeline and provide measured results; **they do not demonstrate that Mario has learned to finish the level**. The PyTorch tutorial recommends a substantially longer training horizon (at least 40,000 episodes) for meaningful gameplay learning. See [the recorded CSVs and run artifacts](results/README.md).
 
 ## Validation status
 
@@ -123,7 +123,7 @@ The following checks passed:
 - 40-episode and 100-episode training runs with nonzero TD losses and saved checkpoints.
 - Separate 10-episode greedy evaluation for each run, with CSV output.
 
-The 40-episode experiment is documented in [its GitHub Actions run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290496743); the 100-episode faster-decay experiment is documented in [its run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290512314). Checkpoint files are attached as workflow artifacts (30-day retention), while the smaller CSV metrics are committed in this repository.
+The 40-episode bounded integration experiment is documented in [its GitHub Actions run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290496743); the 100-episode faster-decay experiment is documented in [its run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290512314). Checkpoint files are attached as workflow artifacts (30-day retention), while the smaller CSV metrics are committed in this repository.
 
 **Project implementation and end-to-end pipeline validation are complete. Level completion is not yet achieved:** all 20 greedy evaluation episodes reported `flag_reached=0`. Do not describe this checkpoint as a Mario-winning agent.
 
