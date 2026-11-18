@@ -13,6 +13,7 @@ This page separates code/architecture checks from actual environment training an
 | Q-Learning / CliffWalking | **Multi-seed comparison completed** | Same 10 seeds and evaluation protocol; all 200 greedy evaluation episodes reached the goal in this experiment |
 | Flappy Bird DQN architecture | Inspected | 180 LiDAR observations in the executed configuration, 256-unit hidden layer, two action values |
 | Flappy Bird environment setup | Completed locally; CI diagnostic passed | Windows 11, Python 3.11.9, CPU-only PyTorch run; reproducible environment diagnostic in GitHub Actions |
+| Flappy Bird bounded runner validation | **Passed in GitHub Actions** | Pinned dependencies, 5-episode seeded training smoke test, per-episode metrics, checkpoint save, and separate greedy evaluation all completed; [workflow run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44331911091) |
 | Flappy Bird end-to-end training | **Completed locally** | Training log records a best reward of 5.6 at episode 13,604 |
 | Flappy Bird checkpoint | **Saved locally** | `runs/flappybirdv0.pt`; checkpoint is saved when a new best episode reward is reached |
 | Flappy Bird greedy evaluation | **Completed locally (historical run)** | 100 episodes; mean 1.455, population standard deviation 0.907, max 5.6, min -0.2; historical run was unseeded |
