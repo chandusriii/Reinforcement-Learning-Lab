@@ -23,6 +23,10 @@ def parse_args():
     parser.add_argument("--checkpoint-dir", type=Path, default=Path("checkpoints/mario"))
     parser.add_argument("--replay-dir", type=Path, default=Path("replay_memory"))
     parser.add_argument("--replay-capacity", type=int, default=20_000)
+    parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--burnin", type=int, default=10_000)
+    parser.add_argument("--learn-every", type=int, default=3)
+    parser.add_argument("--sync-every", type=int, default=10_000)
     parser.add_argument("--render", action="store_true")
     parser.add_argument("--resume", type=Path, default=None)
     return parser.parse_args()
@@ -30,8 +34,8 @@ def parse_args():
 
 def main():
     args = parse_args()
-    if args.episodes < 1 or args.max_steps < 1:
-        raise ValueError("Episodes and max steps must be positive.")
+    if min(args.episodes, args.max_steps, args.replay_capacity, args.batch_size, args.learn_every, args.sync_every) < 1 or args.burnin < 0:
+        raise ValueError("Episode, step, buffer, batch and update settings must be positive; burn-in cannot be negative.")
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -47,6 +51,10 @@ def main():
         action_dim=env.action_space.n,
         replay_dir=args.replay_dir,
         replay_capacity=args.replay_capacity,
+        batch_size=args.batch_size,
+        burnin=args.burnin,
+        learn_every=args.learn_every,
+        sync_every=args.sync_every,
     )
     if args.resume:
         agent.load(args.resume)
