@@ -47,7 +47,8 @@ The explanations follow the supplied course PDFs and project assignment material
 │   ├── mario_double_dqn/
 │   │   ├── README.md
 │   │   ├── requirements-mario.txt
-│   │   └── code/
+│   │   ├── code/
+│   │   └── results/
 │   │       ├── environment.py
 │   │       ├── mario_dqn.py
 │   │       ├── train.py
