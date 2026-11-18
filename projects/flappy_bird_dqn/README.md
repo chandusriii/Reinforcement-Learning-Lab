@@ -80,7 +80,7 @@ python agent_eval.py flappybirdv0 --seed 10042 --episodes 100
 
 ### Long training and resume
 
-The repository includes a GitHub Actions workflow for the full 20,000-episode seeded run. Open **Actions → Flappy Bird Long Training → Run workflow** and keep the defaults for the first run. The workflow compiles the project, trains, evaluates the best checkpoint over 100 greedy episodes, and publishes the resume checkpoint, per-episode metrics, model weights, and evaluation CSV as the `flappy-long-training-state` artifact.
+The repository includes a GitHub Actions workflow for the full 20,000-episode seeded run. The initial run has already been started: [Flappy Bird long training — run 44334994493](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44334994493). Its result and artifact are still pending. For future runs, open **Actions → Flappy Bird Long Training → Run workflow** and keep the defaults for a fresh run. The workflow compiles the project, trains, evaluates the best checkpoint over 100 greedy episodes, and publishes the resume checkpoint, per-episode metrics, model weights, and evaluation CSV as the `flappy-long-training-state` artifact.
 
 A completed run can be continued: start the same workflow again, set `resume=true`, and provide the previous workflow run ID in `resume_run_id`. Keep the same seed. The runner restores optimizer, target network, replay memory, RNG states, exploration rate, and training metrics; `episodes` means additional episodes for that run.
 
