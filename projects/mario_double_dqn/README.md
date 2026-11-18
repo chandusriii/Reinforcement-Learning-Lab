@@ -93,7 +93,7 @@ python code/train.py --episodes 40000 --seed 42 \
 
 ### Long training through GitHub Actions
 
-For a hosted CPU run, open **Actions → Mario Double DQN Long Training → Run workflow**. The default chunk is 1,000 additional episodes with the tutorial's 20,000-step episode limit. It uploads the latest/best checkpoints, complete replay memory, training CSV, and greedy evaluation as the `mario-long-training-state` artifact.
+For a hosted CPU run, open **Actions → Mario Double DQN Long Training → Run workflow**. The initial 1,000-episode chunk has already been launched: [Mario long training — run 44335214352](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44335214352). Its result and artifact are still pending. Future chunks can be started manually from the same workflow. The default chunk is 1,000 additional episodes with the tutorial's 20,000-step episode limit. It uploads the latest/best checkpoints, complete replay memory, training CSV, and greedy evaluation as the `mario-long-training-state` artifact.
 
 To continue a chunk, start the workflow again with `resume=true` and enter the previous run ID in `resume_run_id`. Keep the seed unchanged. Repeat until the cumulative checkpoint episode reaches 40,000. The runner has a six-hour job limit; use smaller episode chunks if a run approaches that limit. The artifact is retained for 90 days.
 
