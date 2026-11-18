@@ -4,32 +4,40 @@ This directory preserves the source files supplied for the Flappy Bird DQN cours
 
 **Source repository:** https://github.com/shradha-khapra/RL_DQN  
 **Imported branch:** `main`  
-**Imported files:** `.gitignore`, `README.md`, `agent.py`, `dqn.py`, `experience_replay.py`, `game_flappy_bird.py`, and `parameters.yaml`.
+**Imported source files:** `.gitignore`, `README.md`, `agent.py`, `dqn.py`, `experience_replay.py`, `game_flappy_bird.py`, and `parameters.yaml`.
 
-These files have been copied as provided. The source repository did not expose a license file in its root listing when checked; do not assume a license grant. Confirm the author's permission or applicable license before redistributing the copied code publicly. This import is kept in a clearly named subdirectory so the assigned source remains distinct from our notes, experiments, and any future modifications.
+The assigned source files are kept distinct from experiment adaptations. The original `agent.py` was not changed. The additional `agent_eval.py` is a separate evaluation copy that loads the saved checkpoint, runs 100 episodes without exploration, prints summary statistics, and writes per-episode rewards to a CSV file.
+
+The source repository did not expose a license file in its root listing when checked; do not assume a license grant. Confirm the author's permission or applicable license before redistributing copied upstream code.
 
 ## Run commands
 
-From this directory, after installing compatible dependencies:
+Run these commands from this directory after installing compatible dependencies.
 
-```powershell
+Train the assigned implementation:
+
+```cmd
 python agent.py flappybirdv0 --train
 ```
 
-To load the saved model for rendered play:
+Evaluate the saved checkpoint for 100 episodes:
 
-```powershell
-python agent.py flappybirdv0
+```cmd
+python agent_eval.py flappybirdv0
 ```
+
+The evaluation script expects the checkpoint at `runs/flappybirdv0.pt`. It saves the per-episode evaluation data to `runs/flappybirdv0_evaluation.csv`.
+
+Run the original agent in rendered mode only if you have separately addressed the epsilon-print issue in a local copy. The original assigned `agent.py` contains a print statement that references `epsilon` even when training is disabled; the evaluation copy handles this without modifying the assigned source.
 
 Manual keyboard play:
 
-```powershell
+```cmd
 python game_flappy_bird.py
 ```
 
-The source creates the `runs/` directory and saves its best checkpoint and a log there.
+The source creates the `runs/` directory and saves its best checkpoint and best-reward log there. The imported `.gitignore` excludes `runs/`; copy selected result artifacts to the project's tracked `results/` directory if they should be committed.
 
 ## Execution notes
 
-The source requires Python packages including PyTorch, Gymnasium, flappy-bird-gymnasium, PyYAML, and Pygame. Actual environment training must be run in a compatible local Python environment. Record the Python/package versions and measured run outputs before claiming training performance.
+The source requires Python packages including PyTorch, Gymnasium, flappy-bird-gymnasium, PyYAML, and Pygame. The recorded local experiment used Python 3.11.9 and CPU-only PyTorch. See the [project experiment report](../EXPERIMENT_RESULTS.md) and [Windows setup guide](../../../docs/SETUP_GUIDE.md) for recorded versions and limitations.
