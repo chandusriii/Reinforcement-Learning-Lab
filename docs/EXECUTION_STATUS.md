@@ -20,11 +20,12 @@ This page separates code/architecture checks from actual environment training an
 | Flappy Bird visualizations | **Published** | Two PNG files are committed under `projects/flappy_bird_dqn/results/` |
 | Repository artifacts | **Published** | Evaluation CSV, training log, and two PNG visualizations are available in the results directory |
 | Mario Double DQN implementation | **Implemented** | Tutorial-aligned CNN, online/target networks, disk-backed replay, frame preprocessing, training, checkpointing, greedy evaluation, smoke test and core tests are committed under `projects/mario_double_dqn/code/` |
-| Mario Double DQN core validation | **Passed in GitHub Actions** | Python compileall and `code/test_core.py` completed successfully on Python 3.11 / CPU PyTorch; [workflow run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44288712557) |
+| Mario Double DQN core validation | **Passed in GitHub Actions** | Python compileall and `code/test_core.py` completed successfully on Python 3.11 / CPU PyTorch; [workflow run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44291824310) |
 | Mario emulator smoke test | **Passed in GitHub Actions** | Python 3.10, Gym 0.26.2, gym-super-mario-bros 7.4.0, nes-py 8.2.1; reset, step, and 4 × 84 × 84 observation checks passed |
 | Mario 40-episode training + 10-episode greedy evaluation | **Completed** | Mean training return 537.78; best 1,236; greedy evaluation mean 626.0, std 0.0; flag reached 0/10 |
 | Mario 100-episode faster-decay experiment + 10-episode greedy evaluation | **Completed** | Mean training return 532.24; best 1,346; greedy evaluation mean 231.0, std 0.0; flag reached 0/10 |
-| Mario core unit tests | **Passed** | Includes deterministic Double DQN online-action selection / target-network evaluation and terminal masking |
+| Mario core unit tests | **Passed** | Includes deterministic Double DQN online-action selection / target-network evaluation and terminal masking; latest run: [GitHub Actions](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44291824310) |
+| Mario experiment data | **Published** | 40-episode and 100-episode training CSVs, plus separate 10-episode greedy-evaluation CSVs, are committed under `projects/mario_double_dqn/results/` |
 
 
 ## Flappy Bird DQN: completed local run
