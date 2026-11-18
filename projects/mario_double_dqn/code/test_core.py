@@ -67,14 +67,17 @@ class MarioCoreTests(unittest.TestCase):
             self.assertIsNotNone(loss)
             self.assertTrue(np.isfinite(loss))
             checkpoint = Path(directory) / "agent.pt"
-            agent.save(checkpoint)
+            agent.save(checkpoint, episode=5)
             restored = MarioAgent(
-                replay_dir=Path(directory) / "replay_restored",
+                replay_dir=Path(directory) / "replay",
                 replay_capacity=8,
                 batch_size=4,
+                resume_replay=True,
             )
-            restored.load(checkpoint)
+            saved_episode = restored.load(checkpoint)
+            self.assertEqual(saved_episode, 5)
             self.assertEqual(restored.curr_step, agent.curr_step)
+            self.assertEqual(restored.memory.size, agent.memory.size)
             self.assertTrue(np.isfinite(q_value))
 
 
