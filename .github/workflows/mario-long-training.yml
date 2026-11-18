@@ -1,0 +1,155 @@
+name: Mario Double DQN Long Training
+
+on:
+  workflow_dispatch:
+    inputs:
+      episodes:
+        description: "Additional training episodes in this run (resume for more)"
+        required: true
+        default: 1000
+        type: number
+      seed:
+        description: "Training seed (keep unchanged when resuming)"
+        required: true
+        default: 42
+        type: number
+      max_steps:
+        description: "Maximum environment steps per episode"
+        required: true
+        default: 20000
+        type: number
+      resume:
+        description: "Resume from a previous Mario training artifact"
+        required: true
+        default: false
+        type: boolean
+      resume_run_id:
+        description: "Previous workflow run ID containing mario-long-training-state"
+        required: false
+        type: string
+      evaluation_episodes:
+        description: "Greedy evaluation episodes after this training chunk"
+        required: true
+        default: 20
+        type: number
+
+jobs:
+  train-mario:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install CPU PyTorch and NES environment
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install numpy==1.26.4
+          python -m pip install torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install gym==0.26.2 gym-super-mario-bros==7.4.0 nes-py==8.2.1 Pillow==10.4.0
+
+      - name: Restore previous training state
+        if: ${{ inputs.resume }}
+        uses: actions/download-artifact@v4
+        with:
+          name: mario-long-training-state
+          path: projects/mario_double_dqn
+          run-id: ${{ inputs.resume_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate training inputs
+        env:
+          EPISODES: ${{ inputs.episodes }}
+          SEED: ${{ inputs.seed }}
+          MAX_STEPS: ${{ inputs.max_steps }}
+          EVALUATION_EPISODES: ${{ inputs.evaluation_episodes }}
+          RESUME: ${{ inputs.resume }}
+          RESUME_RUN_ID: ${{ inputs.resume_run_id }}
+        run: |
+          python - <<'PY'
+          import os
+          for key in ("EPISODES", "SEED", "MAX_STEPS", "EVALUATION_EPISODES"):
+              if int(os.environ[key]) <= 0:
+                  raise SystemExit(f"{key} must be positive")
+          if os.environ["RESUME"].lower() == "true" and not os.environ["RESUME_RUN_ID"]:
+              raise SystemExit("resume_run_id is required when resume=true")
+          PY
+
+      - name: Compile and smoke-test Mario emulator
+        working-directory: projects/mario_double_dqn
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: |
+          python -m compileall -q code
+          python code/smoke_test.py --steps 2
+
+      - name: Train or resume Double DQN
+        working-directory: projects/mario_double_dqn
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+          OMP_NUM_THREADS: "2"
+          MKL_NUM_THREADS: "2"
+          EPISODES: ${{ inputs.episodes }}
+          SEED: ${{ inputs.seed }}
+          MAX_STEPS: ${{ inputs.max_steps }}
+          RESUME: ${{ inputs.resume }}
+        run: |
+          args=(--episodes "$EPISODES" --max-steps "$MAX_STEPS" --seed "$SEED"
+            --checkpoint-dir checkpoints/mario-longrun
+            --replay-dir replay_memory/mario-longrun)
+          if [ "$RESUME" = "true" ]; then
+            args+=(--resume checkpoints/mario-longrun/latest_mario_double_dqn.pt)
+          fi
+          python code/train.py "${args[@]}"
+
+      - name: Evaluate best checkpoint greedily
+        working-directory: projects/mario_double_dqn
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+          OMP_NUM_THREADS: "2"
+          MKL_NUM_THREADS: "2"
+          SEED: ${{ inputs.seed }}
+          EVALUATION_EPISODES: ${{ inputs.evaluation_episodes }}
+        run: |
+          python code/evaluate.py \
+            --checkpoint checkpoints/mario-longrun/best_mario_double_dqn.pt \
+            --episodes "$EVALUATION_EPISODES" \
+            --max-steps 20000 \
+            --seed "$((SEED + 100000))" \
+            --output evaluation/mario-longrun-latest.csv
+
+      - name: Write run summary
+        if: always()
+        env:
+          RUN_ID: ${{ github.run_id }}
+          EPISODES: ${{ inputs.episodes }}
+          SEED: ${{ inputs.seed }}
+          RESUME: ${{ inputs.resume }}
+        run: |
+          mkdir -p projects/mario_double_dqn/checkpoints/mario-longrun
+          {
+            echo "workflow_run_id=$RUN_ID"
+            echo "episodes_this_run=$EPISODES"
+            echo "seed=$SEED"
+            echo "resumed=$RESUME"
+          } > projects/mario_double_dqn/checkpoints/mario-longrun/run_summary.txt
+
+      - name: Upload resumable training state and evaluation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mario-long-training-state
+          path: |
+            projects/mario_double_dqn/checkpoints/mario-longrun/
+            projects/mario_double_dqn/replay_memory/mario-longrun/
+            projects/mario_double_dqn/evaluation/mario-longrun-latest.csv
+          if-no-files-found: warn
+          retention-days: 90
