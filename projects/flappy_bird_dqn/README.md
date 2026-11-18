@@ -54,7 +54,13 @@ The original `agent.py` was not modified to fix the evaluation print issue. A se
 
 ## Running the Project
 
-Follow the [Windows setup guide](../../docs/SETUP_GUIDE.md) to create a compatible environment. From `assigned_implementation/`, the recommended seeded runner trains for a finite budget (20,000 episodes by default; at most 10,000 steps per episode):
+Use Python 3.11. From the repository root, install the pinned environment dependencies and then install the matching PyTorch build separately for your machine:
+
+```cmd
+python -m pip install -r requirements/flappy-bird.txt
+```
+
+Choose the PyTorch CPU/CUDA build from the [official installer selector](https://docs.pytorch.org/get-started/locally/), then follow the [Windows setup guide](../../docs/SETUP_GUIDE.md). From `assigned_implementation/`, the recommended seeded runner trains for a finite budget (20,000 episodes by default; at most 10,000 steps per episode):
 
 ```cmd
 python agent_eval.py flappybirdv0 --train --seed 42 --episodes 20000
