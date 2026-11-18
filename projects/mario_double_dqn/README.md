@@ -91,6 +91,14 @@ python code/train.py --episodes 40000 --seed 42 \
   --replay-dir replay_memory
 ```
 
+### Long training through GitHub Actions
+
+For a hosted CPU run, open **Actions → Mario Double DQN Long Training → Run workflow**. The default chunk is 1,000 additional episodes with the tutorial's 20,000-step episode limit. It uploads the latest/best checkpoints, complete replay memory, training CSV, and greedy evaluation as the `mario-long-training-state` artifact.
+
+To continue a chunk, start the workflow again with `resume=true` and enter the previous run ID in `resume_run_id`. Keep the seed unchanged. Repeat until the cumulative checkpoint episode reaches 40,000. The runner has a six-hour job limit; use smaller episode chunks if a run approaches that limit. The artifact is retained for 90 days.
+
+The hosted runner is CPU-only. For faster training, run the same command on a local machine with a compatible GPU and sufficient free disk space. Do not mix checkpoints with replay directories from different runs.
+
 Here `--episodes` means additional episodes when resuming. Keep the latest checkpoint, `training_metrics.csv`, and the replay-memory directory together. The resume loader checks that the checkpoint and replay files come from the same save point and trims any CSV rows written after that checkpoint. Resume specifically requires the matching replay directory; an evaluation-only checkpoint load does not. Older checkpoints created before persistent replay metadata was added cannot be resumed safely.
 
 For a short integration check, limit the run:
