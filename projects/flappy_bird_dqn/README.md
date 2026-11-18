@@ -78,7 +78,7 @@ Manual keyboard play:
 python game_flappy_bird.py
 ```
 
-The source creates a `runs/` directory and saves the best checkpoint and best-reward log there. The evaluation copy saves per-episode rewards to `runs/flappybirdv0_evaluation.csv`.
+The source creates a `runs/` directory and saves the best checkpoint and best-reward log there. The evaluation copy saves per-episode rewards to `runs/flappybirdv0_evaluation.csv`; the published copy is available in [`results/flappybirdv0_evaluation.csv`](results/flappybirdv0_evaluation.csv).
 
 ## Experiment Results
 
@@ -97,7 +97,7 @@ End-to-end training and a separate 100-episode greedy evaluation have been compl
 
 The agent achieved a positive mean reward across the 100 evaluation episodes. Individual episode returns varied, so the best episode should not be interpreted as typical performance. The evaluation used the saved checkpoint without epsilon-greedy exploration.
 
-See [Experiment Results](EXPERIMENT_RESULTS.md) for the protocol, interpretation, and limitations. The [results directory](results/README.md) explains how to copy the local CSV, logs, and plots into tracked repository storage.
+See [Experiment Results](EXPERIMENT_RESULTS.md) for the protocol, interpretation, and limitations. The [results directory](results/README.md) contains the published evaluation CSV and training log. The two PNG visualizations are generated locally and are still pending publication.
 
 ## Warnings and Limitations
 
