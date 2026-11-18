@@ -286,8 +286,6 @@ class MarioAgent:
     def learn(self):
         if self.curr_step > 0 and self.curr_step % self.sync_every == 0:
             self.net.sync_target()
-        if self.curr_step > 0 and self.curr_step % self.save_every == 0:
-            self.memory.flush(self.curr_step)
         if self.curr_step < self.burnin or self.curr_step % self.learn_every != 0:
             return None, None
         if self.memory.size < self.batch_size:
