@@ -169,7 +169,7 @@ class Agent:
         np.random.set_state(checkpoint["numpy_rng"])
         torch.set_rng_state(checkpoint["torch_rng"].cpu())
         if torch.cuda.is_available() and checkpoint.get("cuda_rng") is not None:
-            torch.cuda.set_rng_state_all(checkpoint["cuda_rng"])
+            torch.cuda.set_rng_state_all([state.cpu() for state in checkpoint["cuda_rng"]])
 
         return (
             int(checkpoint["episode"]),
