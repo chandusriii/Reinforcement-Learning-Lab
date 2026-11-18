@@ -48,14 +48,14 @@ jobs:
           MKL_NUM_THREADS: "2"
         run: |
           python code/train.py \
-            --episodes 3 \
-            --max-steps 128 \
+            --episodes 40 \
+            --max-steps 256 \
             --seed 42 \
-            --replay-capacity 256 \
-            --batch-size 8 \
-            --burnin 16 \
-            --learn-every 4 \
-            --sync-every 64 \
+            --replay-capacity 2048 \
+            --batch-size 32 \
+            --burnin 128 \
+            --learn-every 3 \
+            --sync-every 1000 \
             --checkpoint-dir checkpoints/mario-integration \
             --replay-dir replay_memory/mario-integration
 
@@ -69,8 +69,8 @@ jobs:
         run: |
           python code/evaluate.py \
             --checkpoint checkpoints/mario-integration/best_mario_double_dqn.pt \
-            --episodes 1 \
-            --max-steps 128 \
+            --episodes 10 \
+            --max-steps 256 \
             --seed 10042 \
             --output evaluation/mario-integration.csv
 
