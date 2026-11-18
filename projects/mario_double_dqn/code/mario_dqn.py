@@ -323,6 +323,12 @@ class MarioAgent:
                 "episode": self.last_saved_episode,
                 "replay_position": self.memory.position,
                 "replay_size": self.memory.size,
+                "python_rng_state": random.getstate(),
+                "numpy_rng_state": np.random.get_state(),
+                "torch_rng_state": torch.get_rng_state(),
+                "cuda_rng_state": (
+                    torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None
+                ),
             },
             path,
         )
@@ -334,7 +340,9 @@ class MarioAgent:
         replay buffer. Continuing training must set require_replay=True so that
         stale or mismatched replay files cannot silently corrupt the run.
         """
-        checkpoint = torch.load(path, map_location=self.device, weights_only=True)
+        # The checkpoint is a locally generated training artifact and includes RNG
+        # state tuples/arrays in addition to tensors, so use the full pickle loader.
+        checkpoint = torch.load(path, map_location=self.device, weights_only=False)
         if tuple(checkpoint["state_dim"]) != self.state_dim:
             raise ValueError("Checkpoint observation shape does not match this agent.")
         if int(checkpoint["action_dim"]) != self.action_dim:
@@ -362,4 +370,12 @@ class MarioAgent:
         self.exploration_rate = float(checkpoint["exploration_rate"])
         self.curr_step = int(checkpoint["curr_step"])
         self.last_saved_episode = int(checkpoint.get("episode", 0))
+        if "python_rng_state" in checkpoint:
+            random.setstate(checkpoint["python_rng_state"])
+        if "numpy_rng_state" in checkpoint:
+            np.random.set_state(checkpoint["numpy_rng_state"])
+        if "torch_rng_state" in checkpoint:
+            torch.set_rng_state(checkpoint["torch_rng_state"].cpu())
+        if torch.cuda.is_available() and checkpoint.get("cuda_rng_state") is not None:
+            torch.cuda.set_rng_state_all(checkpoint["cuda_rng_state"])
         return self.last_saved_episode
