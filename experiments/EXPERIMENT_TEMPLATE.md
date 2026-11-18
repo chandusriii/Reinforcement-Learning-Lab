@@ -1,57 +1,48 @@
-# Experiment Report
+# Experiment Record
 
-## Metadata
-- Experiment ID:
+## Run information
+- Run ID:
 - Date:
-- Author:
+- Project:
 - Algorithm:
-- Environment ID:
-- Code commit:
-- Python version:
-- OS:
-- Device (CPU/GPU):
+- Environment and version:
+- Python / framework versions:
+- Device:
+- Random seed:
+
+## Question
+What are you trying to understand or improve?
 
 ## Configuration
-- Random seed(s):
-- Training episodes:
-- Maximum steps per episode:
 - Learning rate:
-- Discount factor (gamma):
-- Epsilon start / minimum / decay:
-- Replay buffer capacity:
+- Discount factor:
+- Epsilon schedule:
+- Replay capacity:
 - Batch size:
-- Target-network update interval:
-- Other parameters:
+- Target update interval:
+- Episodes / environment steps:
+- Other relevant settings:
 
-## Training results
-- Total environment steps:
-- Mean training return:
-- Median training return:
-- Best episode return:
-- Final moving-average return:
-- Wall-clock duration:
-- Checkpoint path:
-- Log path:
+## Training observations
+- Total episodes / steps completed:
+- Mean episode return:
+- Moving-average return:
+- Mean episode length:
+- Loss observations:
+- Warnings or failures:
 
-## Evaluation protocol
-- Exploration disabled?:
-- Number of evaluation episodes:
-- Evaluation seeds:
+## Evaluation
+- Evaluation episodes:
+- Exploration setting:
 - Mean return:
 - Standard deviation:
-- Median return:
-- Minimum / maximum return:
+- Success rate / task-specific metric:
+- Checkpoint:
 
-## Observations
-- Learning behavior:
-- Stability:
-- Failure cases:
-- Warnings:
-- Deviations from reference:
+## Interpretation
+- What happened?
+- What evidence supports the conclusion?
+- What limitations affect the interpretation?
+- What will be changed in the next experiment?
 
-## Conclusion
-- What worked:
-- What did not:
-- Next experiment:
-
-> Do not fill this report with estimated or invented metrics. Record measurements produced by the actual run.
+> Record measured results only. If a run was not completed, describe the blocker rather than estimating metrics.
