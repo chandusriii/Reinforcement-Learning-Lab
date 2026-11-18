@@ -26,7 +26,7 @@ These are measured results from two short, real-emulator experiments. Both runs 
 - Discount factor: 0.9
 - Loss: Smooth L1
 
-The intentionally short 256-step episode cap makes these integration experiments bounded. It is not a full-length Mario training schedule.
+The intentionally short 256-step episode cap makes these integration experiments bounded; they are not exact reproductions of the tutorial's unrestricted 40-episode run or its recommended long training schedule.
 
 ## Results
 
@@ -48,13 +48,13 @@ The faster-decay run reached the minimum exploration rate sooner but produced a 
 
 ## Published raw metrics
 
-### Tutorial-style schedule — 40 episodes
+### Tutorial-default epsilon schedule — 40-episode integration run
 
 - [Training metrics CSV](training_40ep.csv)
 - [Greedy evaluation CSV — 10 episodes](evaluation_40ep_greedy10.csv)
 - [GitHub Actions run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290496743)
 
-### Faster epsilon-decay experiment — 100 episodes
+### Faster epsilon-decay comparison — 100-episode integration run
 
 - [Training metrics CSV](training_100ep_fast_epsilon.csv)
 - [Greedy evaluation CSV — 10 episodes](evaluation_100ep_greedy10.csv)
