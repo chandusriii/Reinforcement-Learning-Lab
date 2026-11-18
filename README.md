@@ -16,12 +16,11 @@ The goal is to make this repository useful as a learning resource: a student or 
 
 ## Learning notes
 
-The notes are organized as a progressive path:
-
 1. [RL Fundamentals](docs/RL_FUNDAMENTALS.md) — the agent–environment loop, reward and return, policy, MDP, Markov property, value functions, Bellman equations, and exploration/exploitation.
 2. [Tabular Reinforcement Learning](docs/TABULAR_RL.md) — Dynamic Programming, Monte Carlo, TD learning, SARSA, Q-Learning, Cliff Walking, and Gymnasium.
 3. [Deep Reinforcement Learning and DQN](docs/DEEP_RL_DQN.md) — neural Q-functions, DQN, replay memory, target networks, Double DQN, and game-agent workflows.
 4. [Learning Glossary](docs/LEARNING_GLOSSARY.md) — concise definitions for quick revision.
+5. [Experiment Guide](docs/EXPERIMENT_GUIDE.md) — a consistent protocol for recording and interpreting runs.
 
 The explanations follow the supplied course PDFs and project assignment materials, with additional notation and clarifying examples to connect the concepts to implementation.
 
@@ -36,16 +35,16 @@ The explanations follow the supplied course PDFs and project assignment material
 │   ├── DEEP_RL_DQN.md
 │   ├── LEARNING_GLOSSARY.md
 │   ├── EXECUTION_STATUS.md
+│   ├── EXPERIMENT_GUIDE.md
 │   └── SETUP_GUIDE.md
-├── notebooks/
-│   ├── tabular/
-│   └── deep_rl/
 ├── projects/
 │   ├── flappy_bird_dqn/
+│   │   ├── README.md
+│   │   ├── EXPERIMENT_RESULTS.md
+│   │   └── assigned_implementation/
 │   └── mario_double_dqn/
 ├── experiments/
-│   ├── results/
-│   └── logs/
+│   └── EXPERIMENT_TEMPLATE.md
 └── requirements/
 ```
 
@@ -53,9 +52,12 @@ The explanations follow the supplied course PDFs and project assignment material
 
 ### Flappy Bird — Deep Q-Network (DQN)
 
-The Flappy Bird project applies value-based reinforcement learning to a game-playing agent. The state-based network uses 12 input features, a 256-unit hidden layer, and two output action values (no-op and flap). The learning workflow uses experience replay, a target network, epsilon-greedy action selection, and reward-based updates.
+The Flappy Bird project applies value-based reinforcement learning to a game-playing agent. The state-based network uses 12 input features, a 256-unit hidden layer, and two output action values (no-op and flap). The learning workflow uses experience replay, a target network, epsilon-greedy exploration, and reward-based updates.
 
-[Read the Flappy Bird project documentation](projects/flappy_bird_dqn/README.md).
+**Execution update:** end-to-end training and a separate 100-episode greedy evaluation have now been completed locally. The evaluation achieved a mean reward of **1.455**, standard deviation **0.907**, maximum **5.6**, and minimum **-0.2**. The best training reward recorded was **5.6 at episode 13,604**.
+
+- [Flappy Bird project guide](projects/flappy_bird_dqn/README.md)
+- [Measured experiment results and limitations](projects/flappy_bird_dqn/EXPERIMENT_RESULTS.md)
 
 The assigned implementation is the starting codebase for this project. Its inspected target calculation uses the maximum output from the target network, which is standard DQN rather than Double DQN. Preserve applicable original license and attribution notices when using or redistributing source files.
 
@@ -65,7 +67,7 @@ The Mario assignment applies Double DQN to a visual game environment. The refere
 
 [Read the Mario Double DQN project documentation](projects/mario_double_dqn/README.md).
 
-The assignment points to the [PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). Its original environment stack uses legacy Gym ecosystem packages, so dependency and operating-system compatibility should be checked before setup.
+The assignment points to the [PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). Its original environment stack uses legacy Gym ecosystem packages, so dependency and operating-system compatibility should be checked before setup. Mario environment training and evaluation have not yet been completed.
 
 ## Experiments and reproducibility
 
