@@ -88,6 +88,7 @@ def evaluate_greedy(
     q_table: np.ndarray, seed: int, episodes: int, max_episode_steps: int
 ) -> list[dict[str, float]]:
     env = gym.make("CliffWalking-v1")
+    rng = np.random.default_rng(seed)
     results: list[dict[str, float]] = []
     try:
         for episode in range(1, episodes + 1):
@@ -96,8 +97,11 @@ def evaluate_greedy(
             steps = 0
             terminated = False
             while steps < max_episode_steps and not terminated:
-                # np.argmax is deterministic and breaks ties by selecting the first action.
-                action = int(np.argmax(q_table[state]))
+                # Select randomly only among greedy (maximum-value) actions. This avoids
+                # an arbitrary fixed action-order bias when learned values are tied.
+                values = q_table[state]
+                best_actions = np.flatnonzero(values == np.max(values))
+                action = int(rng.choice(best_actions))
                 state, reward, terminated, truncated, _ = env.step(action)
                 total_reward += float(reward)
                 steps += 1
@@ -221,7 +225,7 @@ def main() -> None:
         "gamma": args.gamma,
         "epsilon": args.epsilon,
         "standard_deviation": "population (ddof=0), across independent seeds",
-        "evaluation": "greedy, deterministic argmax tie-breaking",
+        "evaluation": "greedy actions; seeded random tie-breaking among equal maximum Q-values",
     }
     (args.output_dir / "metadata.json").write_text(
         json.dumps(metadata, indent=2) + "\n", encoding="utf-8"
