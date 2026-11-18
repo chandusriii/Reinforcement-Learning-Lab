@@ -289,7 +289,7 @@ class Agent:
                     and episode_reward < self.reward_threshold
                 ):
                     if is_training and random.random() < epsilon:
-                        action = int(env.action_space.sample())
+                        action = random.randrange(num_actions)
                     else:
                         with torch.no_grad():
                             action = int(
