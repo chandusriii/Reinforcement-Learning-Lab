@@ -54,23 +54,19 @@ The original `agent.py` was not modified to fix the evaluation print issue. A se
 
 ## Running the Project
 
-Follow the [Windows setup guide](../../docs/SETUP_GUIDE.md) to create a compatible environment. From `assigned_implementation/`, train with:
+Follow the [Windows setup guide](../../docs/SETUP_GUIDE.md) to create a compatible environment. From `assigned_implementation/`, the recommended seeded runner trains for a finite budget (20,000 episodes by default; at most 10,000 steps per episode):
 
 ```cmd
-python agent.py flappybirdv0 --train
+python agent_eval.py flappybirdv0 --train --seed 42 --episodes 20000
 ```
 
-Run the saved agent with rendering using the original source:
+It saves the best policy as `runs/flappybirdv0.pt` and a latest checkpoint as `runs/flappybirdv0_latest.pt`. For a reproducible, headless greedy evaluation:
 
 ```cmd
-python agent.py flappybirdv0
+python agent_eval.py flappybirdv0 --seed 10042 --episodes 100
 ```
 
-For a reproducible, headless greedy evaluation:
-
-```cmd
-python agent_eval.py flappybirdv0 --seed 42 --episodes 100
-```
+Use `--render` to watch an evaluation. The original coursework `agent.py` remains unchanged and is retained for source comparison; the bounded runner is recommended for new experiments.
 
 To measure the reported Gymnasium observation-space warning rather than suppress it, run this diagnostic from the same folder:
 
@@ -109,7 +105,7 @@ See [Experiment Results](EXPERIMENT_RESULTS.md) for the protocol, interpretation
 
 ## Warnings and Limitations
 
-- The raw LiDAR observation-space mismatch has been reproduced in GitHub Actions. Across 150 sampled observations, 2,944 individual values exceeded the declared [0, 1] Box; the maximum observed value was 1.0021062783. The environment's ray-intersection output therefore exceeds its advertised normalized upper bound. The seeded `agent_eval.py` adapter disables the premature passive checker and clips observations to the declared bounds before model input. The diagnostic script intentionally inspects raw values without clipping, so the upstream mismatch remains documented rather than hidden.
+- The raw LiDAR observation-space mismatch has been reproduced in GitHub Actions. Across 150 sampled observations, 2,944 individual values exceeded the declared [0, 1] Box; the maximum observed value was 1.0021062783. The environment's ray-intersection output therefore exceeds its advertised normalized upper bound. The seeded `agent_eval.py` adapter disables the premature passive checker and clips observations to the declared bounds before model input. The diagnostic records the raw values before correction and verifies that all values passed through the adapter satisfy the Box. The upstream mismatch remains documented rather than hidden.
 - The historical 13,604-episode training run and 100-episode evaluation were not recorded with a seed. The newer runner accepts explicit seeds; no new multi-seed performance estimate is claimed yet.
 - The source training log records best-reward improvements, not every episode reward or loss.
 - The evaluation metrics describe this checkpoint and environment setup; they do not establish performance across other seeds or package versions.
