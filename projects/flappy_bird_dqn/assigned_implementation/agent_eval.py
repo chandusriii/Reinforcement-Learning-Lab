@@ -242,7 +242,8 @@ class Agent:
                 )
                 if best_policy_state is None:
                     raise ValueError("Resume checkpoint is missing the best-policy weights.")
-                policy_dqn.load_state_dict(best_policy_state)
+                # Restore the independent best-policy snapshot without replacing
+                # the latest online weights used to continue training.
                 torch.save(best_policy_state, self.best_model_path)
                 header, _ = read_metrics_for_resume(
                     training_path, completed_episode, seed
