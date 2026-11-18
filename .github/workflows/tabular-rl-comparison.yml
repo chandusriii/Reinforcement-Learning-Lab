@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "projects/tabular_rl/**"
+      - "requirements/tabular-rl.txt"
       - ".github/workflows/tabular-rl-comparison.yml"
   pull_request:
     paths:
@@ -26,7 +27,7 @@ jobs:
       - name: Install experiment dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install "gymnasium[toy-text]==1.4.0" "numpy==1.26.4"
+          python -m pip install -r requirements/tabular-rl.txt
       - name: Compile experiment
         run: python -m compileall -q projects/tabular_rl/experiments
       - name: Run matched-seed comparison
