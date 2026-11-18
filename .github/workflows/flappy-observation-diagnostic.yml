@@ -43,8 +43,8 @@ jobs:
           SDL_VIDEODRIVER: dummy
           SDL_AUDIODRIVER: dummy
         run: |
-          python agent_eval.py flappybirdv0 --train --seed 42 --episodes 1 --max-steps 25
-          python agent_eval.py flappybirdv0 --seed 10042 --episodes 1 --max-steps 25
+          python agent_eval.py flappybirdv0 --train --seed 42 --episodes 5 --max-steps 100
+          python agent_eval.py flappybirdv0 --seed 10042 --episodes 1 --max-steps 100
       - name: Upload diagnostic report
         uses: actions/upload-artifact@v4
         with:
