@@ -13,6 +13,7 @@ This page records the source materials that informed the notes and project direc
 
 - **Flappy Bird assigned implementation:** [RL_DQN](https://github.com/shradha-khapra/RL_DQN). Used as the starting implementation for the Flappy Bird coursework project. Preserve its license and notices when using or redistributing code.
 - **Mario Double DQN tutorial:** [PyTorch — Train a Mario-playing RL Agent](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). Linked by the supplied assignment.
+- **Double DQN research paper:** Hado van Hasselt, Arthur Guez, and David Silver, [Deep Reinforcement Learning with Double Q-Learning](https://arxiv.org/abs/1509.06461), AAAI 2016, DOI: [10.1609/AAAI.V30I1.10295](https://doi.org/10.1609/AAAI.V30I1.10295).
 - **Flappy Bird Gymnasium environment:** [flappy-bird-gymnasium on PyPI](https://pypi.org/project/flappy-bird-gymnasium/).
 
 ## How references are used
