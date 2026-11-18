@@ -44,12 +44,18 @@ jobs:
           SDL_VIDEODRIVER: dummy
           SDL_AUDIODRIVER: dummy
         run: |
-          python agent_eval.py flappybirdv0 --train --seed 42 --episodes 5 --max-steps 100
+          python agent_eval.py flappybirdv0 --train --seed 42 --episodes 2 --max-steps 100 --checkpoint-every 1
+          python agent_eval.py flappybirdv0 --train --seed 42 --episodes 1 --max-steps 100 --checkpoint-every 1 --resume
           python agent_eval.py flappybirdv0 --seed 10042 --episodes 1 --max-steps 100
       - name: Upload diagnostic report
         uses: actions/upload-artifact@v4
         with:
           name: flappy-observation-diagnostic
-          path: projects/flappy_bird_dqn/assigned_implementation/observation_diagnostic.txt
+          path: |
+            projects/flappy_bird_dqn/assigned_implementation/observation_diagnostic.txt
+            projects/flappy_bird_dqn/assigned_implementation/runs/flappybirdv0_training_seed_42.csv
+            projects/flappy_bird_dqn/assigned_implementation/runs/flappybirdv0_resume.pt
+            projects/flappy_bird_dqn/assigned_implementation/runs/flappybirdv0.pt
+            projects/flappy_bird_dqn/assigned_implementation/runs/flappybirdv0_evaluation_seed_10042.csv
           if-no-files-found: error
           retention-days: 90
