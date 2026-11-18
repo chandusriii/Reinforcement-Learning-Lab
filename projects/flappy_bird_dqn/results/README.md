@@ -12,9 +12,9 @@ copy projects\flappy_bird_dqn\assigned_implementation\runs\flappybird_dqn_evalua
 copy projects\flappy_bird_dqn\assigned_implementation\runs\flappybirdv0.log projects\flappy_bird_dqn\results\
 ```
 
-Review the copied files, then commit and push the `results/` directory. The model checkpoint (`.pt`) is intentionally not included by default because model weights can add repository size; consider Git LFS or a release asset if sharing the checkpoint is required.
+The evaluation CSV and training log are already published in this directory. The two PNG visualizations are still pending upload. Once copied into this directory, commit and push them. The model checkpoint (`.pt`) is intentionally not included by default because model weights can add repository size; consider Git LFS or a release asset if sharing the checkpoint is required. The model checkpoint (`.pt`) is intentionally not included by default because model weights can add repository size; consider Git LFS or a release asset if sharing the checkpoint is required.
 
-## Recorded evaluation summary
+## Published files\n\n- [`flappybirdv0_evaluation.csv`](flappybirdv0_evaluation.csv) — 100 per-episode evaluation rewards.\n- [`flappybirdv0.log`](flappybirdv0.log) — best-reward training progress log.\n\nThe two plot files exist locally under `assigned_implementation/runs/` but have not yet been verified in this GitHub directory.\n\n## Recorded evaluation summary
 
 - Episodes: 100
 - Mean reward: 1.455
