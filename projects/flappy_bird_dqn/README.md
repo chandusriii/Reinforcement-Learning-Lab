@@ -60,13 +60,13 @@ Follow the [Windows setup guide](../../docs/SETUP_GUIDE.md) to create a compatib
 python agent_eval.py flappybirdv0 --train --seed 42 --episodes 20000
 ```
 
-It saves the best policy as `runs/flappybirdv0.pt` and a latest checkpoint as `runs/flappybirdv0_latest.pt`. For a reproducible, headless greedy evaluation:
+It saves the best policy weights as `runs/flappybirdv0.pt`, a latest weights snapshot as `runs/flappybirdv0_latest.pt`, and per-episode training metrics (return, steps, environment steps, epsilon, and mean loss) as `runs/flappybirdv0_training_seed_42.csv`. The latest file is a weights snapshot, not a full optimizer/replay-state resume checkpoint. For a reproducible, headless greedy evaluation:
 
 ```cmd
 python agent_eval.py flappybirdv0 --seed 10042 --episodes 100
 ```
 
-Use `--render` to watch an evaluation. The original coursework `agent.py` remains unchanged and is retained for source comparison; the bounded runner is recommended for new experiments.
+Use `--render` to watch an evaluation. Greedy evaluation writes per-episode reward and step counts to `runs/flappybirdv0_evaluation_seed_10042.csv`. The original coursework `agent.py` remains unchanged and is retained for source comparison; the bounded runner is recommended for new experiments.
 
 To measure the reported Gymnasium observation-space warning rather than suppress it, run this diagnostic from the same folder:
 
