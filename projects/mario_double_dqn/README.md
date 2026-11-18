@@ -91,7 +91,7 @@ python code/train.py --episodes 40000 --seed 42 \
   --replay-dir replay_memory
 ```
 
-Here `--episodes` means additional episodes when resuming. Keep the latest checkpoint, `training_metrics.csv`, and the replay-memory directory together. The resume loader checks that the checkpoint and replay files come from the same save point and trims any CSV rows written after that checkpoint. Older checkpoints created before persistent replay metadata was added cannot be resumed safely.
+Here `--episodes` means additional episodes when resuming. Keep the latest checkpoint, `training_metrics.csv`, and the replay-memory directory together. The resume loader checks that the checkpoint and replay files come from the same save point and trims any CSV rows written after that checkpoint. Resume specifically requires the matching replay directory; an evaluation-only checkpoint load does not. Older checkpoints created before persistent replay metadata was added cannot be resumed safely.
 
 For a short integration check, limit the run:
 
@@ -128,7 +128,7 @@ The faster-decay experiment reduced exploration quickly but produced a weaker gr
 
 The following checks passed:
 
-- Python compileall and CPU unit tests, including a deterministic test proving that the online network selects the next action while the target network evaluates it: [latest core-test run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290709856).
+- Python compileall and CPU unit tests, including deterministic Double DQN target selection, terminal masking, persistent replay/checkpoint resume, and loading a policy for evaluation with a fresh replay directory: [latest core-test run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44332361271).
 - NES emulator startup, reset, frame preprocessing, and step smoke test.
 - 40-episode and 100-episode training runs with nonzero TD losses and saved checkpoints.
 - Separate 10-episode greedy evaluation for each run, with CSV output.
