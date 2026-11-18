@@ -1,9 +1,10 @@
-# Create a dedicated Python 3.10 environment for the legacy NES/Gym stack.
-# Install a PyTorch build appropriate for the machine from https://pytorch.org/get-started/locally/
-torch>=2.2,<3.0
-torchvision>=0.17,<1.0
+# Environment dependencies for the Mario coursework implementation.
+# Use Python 3.10 in a dedicated virtual environment.
+# Install a matching PyTorch/TorchVision build separately from:
+# https://pytorch.org/get-started/locally/
+# The CI validation run used PyTorch 2.2.2 CPU.
 numpy==1.26.4
 gym==0.26.2
 gym-super-mario-bros==7.4.0
 nes-py==8.2.1
-Pillow>=10.0,<13.0
+Pillow==10.4.0
