@@ -29,9 +29,9 @@ These package versions were read from the local setup record. For strict reprodu
 - The best recorded episode reward was **5.6 at episode 13,604**.
 - The source code saves the policy checkpoint whenever a new best episode reward is achieved.
 - Local checkpoint: `assigned_implementation/runs/flappybirdv0.pt`.
-- Local training log: `assigned_implementation/runs/flappybirdv0.log`.
+- Training log: [`results/flappybirdv0.log`](results/flappybirdv0.log).
 
-The training log contains best-reward improvement events only. The training plot is therefore a best-so-far progression plot, not a complete per-episode reward curve.
+The training log contains best-reward improvement events only. The training plot should therefore be interpreted as a best-so-far progression plot, not a complete per-episode reward curve.
 
 ## Evaluation protocol and result
 
@@ -47,23 +47,20 @@ The saved checkpoint was loaded in evaluation mode. Epsilon-greedy exploration w
 
 The positive mean indicates that the checkpoint obtained positive cumulative reward on average in this 100-episode evaluation. The standard deviation and reward plot show episode-to-episode variation. The maximum reward is a best case, not a measure of typical performance.
 
-## Local artifacts
+## Published artifacts
 
-The following files were generated on the Windows machine:
+The [results directory](results/README.md) contains the evaluation CSV, training log, and two PNG visualizations:
 
-| Artifact | Purpose |
-|---|---|
-| `assigned_implementation/runs/flappybirdv0.pt` | Saved DQN policy checkpoint |
-| `assigned_implementation/runs/flappybirdv0.log` | Best-reward training log |
-| `assigned_implementation/runs/flappybirdv0_evaluation.csv` | Per-episode rewards for 100 evaluation episodes |
-| `assigned_implementation/runs/flappybird_dqn_performance.png` | Training best-reward events and evaluation rewards |
-| `assigned_implementation/runs/flappybird_dqn_evaluation_v2.png` | Evaluation rewards with a 10-episode moving average |
+- [Evaluation rewards CSV](results/flappybirdv0_evaluation.csv)
+- [Training log](results/flappybirdv0.log)
+- [Figure 1](results/Figure_1.png)
+- [Figure 2](results/fig%202.png)
 
-The evaluation CSV and training log have been published under [`results/`](results/README.md). The two PNG visualizations remain local and were not found in the GitHub results directory at the time of verification. The model checkpoint remains local and is intentionally not included in the repository.
+The local model checkpoint remains in `assigned_implementation/runs/flappybirdv0.pt` and is intentionally not included in the repository.
 
 ## Issues observed
 
-1. **Gymnasium observation-space warnings:** the environment emitted warnings that observations returned by `reset()` and `step()` were outside the declared observation space. Training and evaluation completed, but the cause has not yet been diagnosed.
+1. **Gymnasium observation-space warnings:** the environment emitted warnings that observations returned by `reset()` and `step()` were outside the declared observation space. Training and evaluation completed, but the cause has not been diagnosed.
 2. **Evaluation print bug in assigned source:** the original agent's episode print statement references `epsilon` even when `is_training=False`, although epsilon is initialized only during training. The assigned `agent.py` was preserved; the fix was made in a separate evaluation copy.
 3. **No recorded random seed:** the run is a single-run result. Repeating with fixed and multiple seeds is needed to estimate variability more robustly.
 4. **Incomplete training telemetry:** the original training log does not preserve every episode return, episode length, loss, or environment-step count. Those metrics cannot be recovered from the best-reward-only log.
