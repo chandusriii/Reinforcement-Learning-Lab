@@ -103,11 +103,29 @@ Training writes `checkpoints/mario/training_metrics.csv`, a best checkpoint, and
 
 The training CSV records episode return, length, epsilon, mean loss, mean Q-value, flag completion, and elapsed time. The evaluation CSV records episode return, length, and whether the flag was reached. Keep training and evaluation data separate.
 
+## Executed experiments
+
+The Mario environment has been run end-to-end in GitHub Actions using Python 3.10, Gym 0.26.2, gym-super-mario-bros 7.4.0, nes-py 8.2.1, and CPU PyTorch. The emulator reset/step smoke test passed, and the training/evaluation scripts produced checkpoints and CSV evidence.
+
+| Run | Training | Exploration decay | Training mean return | Best training return | Greedy evaluation (10 episodes) | Flag reached |
+|---|---:|---:|---:|---:|---:|---:|
+| Tutorial schedule | 40 episodes | 0.99999975 | 537.78 | 1,236 (episode 39) | 626.0 ± 0.0 | 0/10 |
+| Faster-decay experiment | 100 episodes | 0.9995 | 532.24 | 1,346 (episode 26) | 231.0 ± 0.0 | 0/10 |
+
+The faster-decay experiment reduced exploration quickly but produced a weaker greedy evaluation in this run. The 40-episode run retained the tutorial's slow decay and gave the better evaluated checkpoint. These short experiments validate the complete pipeline and provide measured results; **they do not demonstrate that Mario has learned to finish the level**. The PyTorch tutorial recommends a substantially longer training horizon (at least 40,000 episodes) for meaningful gameplay learning. See [the recorded CSVs and run artifacts](results/README.md).
+
 ## Validation status
 
-The CNN forward pass, Double DQN target calculation, frozen target-network gradients, online-network optimization, and checkpoint round-trip passed the committed CPU unit tests. GitHub Actions also completed Python compileall and `code/test_core.py` successfully on Python 3.11 with CPU PyTorch ([workflow run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44288712557)).
+The following checks passed:
 
-**End-to-end emulator smoke testing, Mario training, and gameplay evaluation are environment-dependent and are not represented as completed results until those commands have run successfully on a machine with the NES/Gym dependencies installed.** No gameplay score, trained checkpoint, or success-rate claim is fabricated.
+- Python compileall and CPU unit tests, including a deterministic test proving that the online network selects the next action while the target network evaluates it: [latest core-test run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290709856).
+- NES emulator startup, reset, frame preprocessing, and step smoke test.
+- 40-episode and 100-episode training runs with nonzero TD losses and saved checkpoints.
+- Separate 10-episode greedy evaluation for each run, with CSV output.
+
+The 40-episode experiment is documented in [its GitHub Actions run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290496743); the 100-episode faster-decay experiment is documented in [its run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290512314). Checkpoint files are attached as workflow artifacts (30-day retention), while the smaller CSV metrics are committed in this repository.
+
+**Project implementation and end-to-end pipeline validation are complete. Level completion is not yet achieved:** all 20 greedy evaluation episodes reported `flag_reached=0`. Do not describe this checkpoint as a Mario-winning agent.
 
 ## Further reading
 
