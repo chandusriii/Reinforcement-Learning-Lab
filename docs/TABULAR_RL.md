@@ -134,4 +134,4 @@ One run is not enough to establish general superiority. Use multiple seeds for a
 
 ## Source alignment
 
-Expanded from the supplied **Reinforcement_Learning part2.pdf**, especially its DP, Monte Carlo, TD, SARSA, Q-Learning, Cliff Walking, Gymnasium, and implementation slides. The original SARSA and Q-Learning notebooks should be preserved and reviewed alongside these explanations when added to this repository.
+Expanded from the supplied **Reinforcement_Learning part2.pdf**, especially its DP, Monte Carlo, TD, SARSA, Q-Learning, Cliff Walking, Gymnasium, and implementation slides. The supplied SARSA and Q-Learning notebooks are preserved with their recorded outputs in [projects/tabular_rl/](../projects/tabular_rl/README.md). Their single-run results are summarized there; multiple seeded runs are still needed for a controlled comparison.
