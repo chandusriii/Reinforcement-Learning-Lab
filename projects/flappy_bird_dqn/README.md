@@ -66,11 +66,19 @@ Run the saved agent with rendering using the original source:
 python agent.py flappybirdv0
 ```
 
-For the separate 100-episode evaluation copy:
+For a reproducible, headless greedy evaluation:
 
 ```cmd
-python agent_eval.py flappybirdv0
+python agent_eval.py flappybirdv0 --seed 42 --episodes 100
 ```
+
+To measure the reported Gymnasium observation-space warning rather than suppress it, run this diagnostic from the same folder:
+
+```cmd
+python diagnose_observations.py --episodes 10 --max-steps 2000 --seed 42
+```
+
+It reports the raw observation minimum/maximum and the number of observations/values outside the declared Box. It deliberately does not clip or alter the environment output.
 
 Manual keyboard play:
 
