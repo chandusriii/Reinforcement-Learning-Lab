@@ -35,7 +35,7 @@ else:
     DEVICE = torch.device("cpu")
 
 RUNS_DIR = Path("runs")
-CHECKPOINT_VERSION = 1
+CHECKPOINT_VERSION = 2
 
 
 def split_step(result):
