@@ -27,6 +27,7 @@ def train_one(
     alpha: float,
     gamma: float,
     epsilon: float,
+    max_episode_steps: int,
 ) -> tuple[np.ndarray, list[dict[str, float]]]:
     env = gym.make("CliffWalking-v1")
     rng = np.random.default_rng(seed)
@@ -42,12 +43,13 @@ def train_one(
 
             while True:
                 next_state, reward, terminated, truncated, _ = env.step(action)
-                done = bool(terminated or truncated)
-                total_reward += float(reward)
                 steps += 1
+                episode_truncated = bool(truncated or steps >= max_episode_steps)
+                episode_done = bool(terminated or episode_truncated)
+                total_reward += float(reward)
 
                 if algorithm == "sarsa":
-                    if done:
+                    if terminated:
                         target = float(reward)
                         next_action = None
                     else:
@@ -55,14 +57,14 @@ def train_one(
                         target = float(reward) + gamma * q_table[next_state, next_action]
                 elif algorithm == "q_learning":
                     target = float(reward)
-                    if not done:
+                    if not terminated:
                         target += gamma * float(np.max(q_table[next_state]))
                     next_action = None
                 else:
                     raise ValueError(f"Unsupported algorithm: {algorithm}")
 
                 q_table[state, action] += alpha * (target - q_table[state, action])
-                if done:
+                if episode_done:
                     break
                 state = next_state
                 action = (
@@ -83,7 +85,7 @@ def train_one(
 
 
 def evaluate_greedy(
-    q_table: np.ndarray, seed: int, episodes: int
+    q_table: np.ndarray, seed: int, episodes: int, max_episode_steps: int
 ) -> list[dict[str, float]]:
     env = gym.make("CliffWalking-v1")
     results: list[dict[str, float]] = []
@@ -92,7 +94,8 @@ def evaluate_greedy(
             state, _ = env.reset(seed=seed + episode)
             total_reward = 0.0
             steps = 0
-            while True:
+            terminated = False
+            while steps < max_episode_steps and not terminated:
                 # np.argmax is deterministic and breaks ties by selecting the first action.
                 action = int(np.argmax(q_table[state]))
                 state, reward, terminated, truncated, _ = env.step(action)
@@ -118,6 +121,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seeds", nargs="+", type=int, default=list(range(42, 52)))
     parser.add_argument("--episodes", type=int, default=500)
     parser.add_argument("--evaluation-episodes", type=int, default=20)
+    parser.add_argument("--max-episode-steps", type=int, default=2_000,
+                        help="Hard cap to prevent non-terminating exploratory/greedy policies.")
     parser.add_argument("--alpha", type=float, default=0.5)
     parser.add_argument("--gamma", type=float, default=0.99)
     parser.add_argument("--epsilon", type=float, default=0.1)
@@ -126,8 +131,8 @@ def parse_args() -> argparse.Namespace:
 
     if not args.seeds or len(set(args.seeds)) != len(args.seeds):
         parser.error("--seeds must contain one or more unique integers.")
-    if args.episodes < 1 or args.evaluation_episodes < 1:
-        parser.error("Episode counts must be positive.")
+    if args.episodes < 1 or args.evaluation_episodes < 1 or args.max_episode_steps < 1:
+        parser.error("Episode counts and max episode steps must be positive.")
     if not 0.0 <= args.epsilon <= 1.0:
         parser.error("--epsilon must be between 0 and 1.")
     if not 0.0 < args.alpha <= 1.0 or not 0.0 <= args.gamma <= 1.0:
@@ -143,12 +148,14 @@ def main() -> None:
     for algorithm in ("sarsa", "q_learning"):
         for seed in args.seeds:
             q_table, training = train_one(
-                algorithm, seed, args.episodes, args.alpha, args.gamma, args.epsilon
+                algorithm, seed, args.episodes, args.alpha, args.gamma, args.epsilon,
+                args.max_episode_steps,
             )
             evaluation = evaluate_greedy(
                 q_table,
                 seed=seed * 10_000 + 50_000,
                 episodes=args.evaluation_episodes,
+                max_episode_steps=args.max_episode_steps,
             )
             tail = training[-min(50, len(training)):]
             per_seed_rows.append({
@@ -209,6 +216,7 @@ def main() -> None:
         "seeds": args.seeds,
         "episodes_per_seed": args.episodes,
         "evaluation_episodes_per_seed": args.evaluation_episodes,
+        "max_episode_steps": args.max_episode_steps,
         "alpha": args.alpha,
         "gamma": args.gamma,
         "epsilon": args.epsilon,
