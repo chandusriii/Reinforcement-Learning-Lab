@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "projects/flappy_bird_dqn/**"
+      - "requirements/flappy-bird.txt"
       - ".github/workflows/flappy-observation-diagnostic.yml"
   pull_request:
     paths:
