@@ -82,7 +82,7 @@ The Mario assignment applies Double DQN to a visual game environment. The refere
 
 [Read the Mario Double DQN project documentation](projects/mario_double_dqn/README.md).
 
-The implementation now includes the tutorial-aligned CNN, online/target networks, disk-backed replay buffer, Mario preprocessing wrappers, Double DQN training loop, separate greedy evaluator, smoke test, and core unit tests. It is based on the [official PyTorch Mario tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html) and van Hasselt et al.'s [Double DQN paper](https://arxiv.org/abs/1509.06461). Emulator execution and gameplay results must still be generated in the isolated environment described in the project README.
+The implementation now includes the tutorial-aligned CNN, online/target networks, disk-backed replay buffer, Mario preprocessing wrappers, Double DQN training loop, separate greedy evaluator, smoke test, and core unit tests. The NES emulator smoke test, 40-episode training run, 100-episode training experiment, and separate 10-episode greedy evaluations have run successfully in GitHub Actions. Neither evaluation reached the level flag; results and limitations are recorded in the [Mario project results](projects/mario_double_dqn/results/README.md). The implementation follows the [official PyTorch Mario tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html) and van Hasselt et al.'s [Double DQN paper](https://arxiv.org/abs/1509.06461).
 
 ## Experiments and reproducibility
 
