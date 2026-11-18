@@ -19,7 +19,10 @@ This page separates code/architecture checks from actual environment training an
 | Flappy Bird evaluation data | **Published** | Evaluation CSV committed under `projects/flappy_bird_dqn/results/` |
 | Flappy Bird visualizations | **Published** | Two PNG files are committed under `projects/flappy_bird_dqn/results/` |
 | Repository artifacts | **Published** | Evaluation CSV, training log, and two PNG visualizations are available in the results directory |
-| Mario Double DQN documentation | Prepared | Aligned to the supplied assignment, official PyTorch tutorial, and Double DQN research paper; implementation and emulator validation remain pending |
+| Mario Double DQN implementation | **Code committed** | CNN, separate online/target networks, disk-backed replay, preprocessing, training, evaluation, smoke-test and unit-test scripts are committed under `projects/mario_double_dqn/code/` |
+| Mario Double DQN core validation | **CPU model check passed** | CNN forward pass, Double DQN target calculation, frozen target gradients and online backward pass validated; repeatable tests are in `code/test_core.py` |
+| Mario emulator smoke test | Pending | Requires the isolated Gym/NES dependencies and a local emulator run |
+| Mario gameplay training/evaluation | Pending | No game-playing run or reward claim is recorded yet; run the documented training and separate evaluation commands to produce evidence |
 | Mario game training and evaluation | Pending | Environment compatibility, smoke test, training, and separate evaluation remain |
 
 ## Flappy Bird DQN: completed local run
@@ -111,12 +114,11 @@ These values were recalculated from the recorded episode outputs and greedy-eval
 
 ### Mario
 
-1. Implement the assignment from the [official PyTorch Mario tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html), using the Double DQN paper as the algorithm reference.
-2. Create a separate environment from Flappy Bird's environment.
-3. Resolve compatible versions of Gym, Gym-Super-Mario-Bros, nes-py, NumPy, PyTorch, TorchVision, TensorDict, and TorchRL.
-4. Verify emulator startup and one reset/step before training.
-5. Run a short training smoke test.
-6. Train and evaluate using a documented protocol; save logs and checkpoints.
+1. Create the isolated environment described in `projects/mario_double_dqn/README.md`.
+2. Install the pinned Gym/NES and PyTorch dependencies; resolve any Windows native build requirement for `nes-py`.
+3. Run `python code/test_core.py` and `python code/smoke_test.py` from the Mario project folder.
+4. Run a short integration episode, then launch the long training schedule.
+5. Evaluate the saved checkpoint separately and publish only the resulting measured logs and metrics.
 
 ## Integrity rule
 
