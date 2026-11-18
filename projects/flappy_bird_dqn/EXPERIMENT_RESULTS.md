@@ -60,7 +60,7 @@ The local model checkpoint remains in `assigned_implementation/runs/flappybirdv0
 
 ## Issues observed
 
-1. **Gymnasium observation-space warnings:** the environment emitted warnings that observations returned by `reset()` and `step()` were outside the declared observation space. Training and evaluation completed, but the cause has not been diagnosed.
+1. **Gymnasium observation-space mismatch:** this was reproduced and measured in GitHub Actions using the pinned Flappy Bird environment. The declared LiDAR Box is [0, 1], but a 3-episode diagnostic inspected 150 observations and found 2,944 individual values outside the Box, with a maximum of 1.0021062783. The updated separate `agent_eval.py` disables the premature passive checker and clips observations to the declared bounds before they enter the DQN. The raw diagnostic remains available in `assigned_implementation/diagnose_observations.py`; it does not clip the data. The original assigned `agent.py` remains unchanged and may still emit the upstream warnings.
 2. **Evaluation print bug in assigned source:** the original agent's episode print statement references `epsilon` even when `is_training=False`, although epsilon is initialized only during training. The assigned `agent.py` was preserved; the fix was made in a separate evaluation copy.
 3. **No recorded random seed:** the run is a single-run result. Repeating with fixed and multiple seeds is needed to estimate variability more robustly.
 4. **Incomplete training telemetry:** the original training log does not preserve every episode return, episode length, loss, or environment-step count. Those metrics cannot be recovered from the best-reward-only log.
@@ -71,8 +71,8 @@ The run demonstrates that the assigned DQN implementation can train and that its
 
 Recommended follow-up work:
 
-- Diagnose the observation-space warnings by inspecting the environment's declared bounds and returned observations.
-- Repeat evaluation using documented seeds and retain all per-episode returns.
+- Run the updated seeded training/evaluation adapter on the local Windows setup and retain the new per-episode evaluation CSV.
+- Export a complete `pip freeze` record from the local environment.
 - Add periodic training metrics (episode return, episode length, epsilon, loss, and environment steps) in a separate experiment implementation.
 - Compare configurations using matched training budgets and evaluation protocols.
 - Keep the assigned coursework source unchanged; place all adaptations in separate files.
