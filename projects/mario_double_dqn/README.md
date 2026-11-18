@@ -130,8 +130,12 @@ The following checks passed:
 
 - Python compileall and CPU unit tests, including deterministic Double DQN target selection, terminal masking, persistent replay/checkpoint resume, and loading a policy for evaluation with a fresh replay directory: [latest core-test run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44332361271).
 - NES emulator startup, reset, frame preprocessing, and step smoke test.
+- A fresh 2-episode real-emulator run followed by a 1-episode resume from the saved latest checkpoint and replay memory; training continued at episode 3 with a nonzero TD loss.
+- Greedy evaluation successfully loaded that trained checkpoint using a fresh, empty replay directory.
 - 40-episode and 100-episode training runs with nonzero TD losses and saved checkpoints.
 - Separate 10-episode greedy evaluation for each run, with CSV output.
+
+The checkpoint/resume/evaluation round-trip is validated in [the Mario resume smoke workflow](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44332415242). This proves that the training state can be resumed separately from evaluation-only checkpoint loading; it is a short systems test, not a gameplay-learning result.
 
 The 40-episode bounded integration experiment is documented in [its GitHub Actions run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290496743); the 100-episode faster-decay experiment is documented in [its run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44290512314). Checkpoint files are attached as workflow artifacts (30-day retention), while the smaller CSV metrics are committed in this repository.
 
