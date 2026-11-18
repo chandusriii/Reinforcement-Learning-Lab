@@ -74,10 +74,20 @@ class MarioCoreTests(unittest.TestCase):
                 batch_size=4,
                 resume_replay=True,
             )
-            saved_episode = restored.load(checkpoint)
+            saved_episode = restored.load(checkpoint, require_replay=True)
             self.assertEqual(saved_episode, 5)
             self.assertEqual(restored.curr_step, agent.curr_step)
             self.assertEqual(restored.memory.size, agent.memory.size)
+
+            # Evaluation loads network/optimizer weights with a fresh empty replay
+            # buffer; it must not require the training replay files.
+            evaluator = MarioAgent(
+                replay_dir=Path(directory) / "evaluation_replay",
+                replay_capacity=8,
+                batch_size=4,
+            )
+            evaluator.load(checkpoint)
+            self.assertEqual(evaluator.curr_step, agent.curr_step)
             self.assertTrue(np.isfinite(q_value))
 
 
