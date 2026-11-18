@@ -13,6 +13,7 @@ import argparse
 import random
 import csv
 import numpy as np
+from bounded_env import ClipObservationBounds
 
 if torch.backends.mps.is_available():
     device = "mps"
@@ -24,43 +25,6 @@ else:
 RUNS_DIR = "runs"
 os.makedirs(RUNS_DIR, exist_ok=True)
 
-
-
-class ClipObservationBounds(gym.Wrapper):
-    """Clip tiny upstream LiDAR range overshoots to the declared Box space."""
-
-    def __init__(self, env):
-        super().__init__(env)
-        self.clipped_values = 0
-        self.observation_values = 0
-
-    def _clip(self, observation):
-        values = np.asarray(observation, dtype=self.observation_space.dtype)
-        outside = np.logical_or(
-            values < self.observation_space.low,
-            values > self.observation_space.high,
-        )
-        self.clipped_values += int(np.count_nonzero(outside))
-        self.observation_values += int(values.size)
-        return np.clip(
-            values, self.observation_space.low, self.observation_space.high
-        ).astype(self.observation_space.dtype, copy=False)
-
-    def reset(self, **kwargs):
-        result = self.env.reset(**kwargs)
-        if isinstance(result, tuple) and len(result) == 2:
-            observation, info = result
-        else:
-            observation, info = result, {}
-        return self._clip(observation), info
-
-    def step(self, action):
-        result = self.env.step(action)
-        if len(result) == 5:
-            observation, reward, terminated, truncated, info = result
-            return self._clip(observation), reward, terminated, truncated, info
-        observation, reward, done, info = result
-        return self._clip(observation), reward, done, info
 
 
 def split_step(result):
