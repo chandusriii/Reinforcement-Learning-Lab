@@ -1,6 +1,9 @@
 name: Mario Double DQN Long Training
 
 on:
+  push:
+    paths:
+      - "docs/START_MARIO_LONG_RUN.md"
   workflow_dispatch:
     inputs:
       episodes:
@@ -54,22 +57,22 @@ jobs:
           python -m pip install gym==0.26.2 gym-super-mario-bros==7.4.0 nes-py==8.2.1 Pillow==10.4.0
 
       - name: Restore previous training state
-        if: ${{ inputs.resume }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.resume || false }}
         uses: actions/download-artifact@v4
         with:
           name: mario-long-training-state
           path: projects/mario_double_dqn
-          run-id: ${{ inputs.resume_run_id }}
+          run-id: ${{ github.event_name == 'workflow_dispatch' && inputs.resume_run_id || '' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate training inputs
         env:
-          EPISODES: ${{ inputs.episodes }}
-          SEED: ${{ inputs.seed }}
-          MAX_STEPS: ${{ inputs.max_steps }}
-          EVALUATION_EPISODES: ${{ inputs.evaluation_episodes }}
-          RESUME: ${{ inputs.resume }}
-          RESUME_RUN_ID: ${{ inputs.resume_run_id }}
+          EPISODES: ${{ github.event_name == 'workflow_dispatch' && inputs.episodes || 1000 }}
+          SEED: ${{ github.event_name == 'workflow_dispatch' && inputs.seed || 42 }}
+          MAX_STEPS: ${{ github.event_name == 'workflow_dispatch' && inputs.max_steps || 20000 }}
+          EVALUATION_EPISODES: ${{ github.event_name == 'workflow_dispatch' && inputs.evaluation_episodes || 20 }}
+          RESUME: ${{ github.event_name == 'workflow_dispatch' && inputs.resume || false }}
+          RESUME_RUN_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.resume_run_id || '' }}
         run: |
           python - <<'PY'
           import os
@@ -96,10 +99,10 @@ jobs:
           SDL_AUDIODRIVER: dummy
           OMP_NUM_THREADS: "2"
           MKL_NUM_THREADS: "2"
-          EPISODES: ${{ inputs.episodes }}
-          SEED: ${{ inputs.seed }}
-          MAX_STEPS: ${{ inputs.max_steps }}
-          RESUME: ${{ inputs.resume }}
+          EPISODES: ${{ github.event_name == 'workflow_dispatch' && inputs.episodes || 1000 }}
+          SEED: ${{ github.event_name == 'workflow_dispatch' && inputs.seed || 42 }}
+          MAX_STEPS: ${{ github.event_name == 'workflow_dispatch' && inputs.max_steps || 20000 }}
+          RESUME: ${{ github.event_name == 'workflow_dispatch' && inputs.resume || false }}
         run: |
           args=(--episodes "$EPISODES" --max-steps "$MAX_STEPS" --seed "$SEED"
             --checkpoint-dir checkpoints/mario-longrun
@@ -116,8 +119,8 @@ jobs:
           SDL_AUDIODRIVER: dummy
           OMP_NUM_THREADS: "2"
           MKL_NUM_THREADS: "2"
-          SEED: ${{ inputs.seed }}
-          EVALUATION_EPISODES: ${{ inputs.evaluation_episodes }}
+          SEED: ${{ github.event_name == 'workflow_dispatch' && inputs.seed || 42 }}
+          EVALUATION_EPISODES: ${{ github.event_name == 'workflow_dispatch' && inputs.evaluation_episodes || 20 }}
         run: |
           python code/evaluate.py \
             --checkpoint checkpoints/mario-longrun/best_mario_double_dqn.pt \
@@ -130,9 +133,9 @@ jobs:
         if: always()
         env:
           RUN_ID: ${{ github.run_id }}
-          EPISODES: ${{ inputs.episodes }}
-          SEED: ${{ inputs.seed }}
-          RESUME: ${{ inputs.resume }}
+          EPISODES: ${{ github.event_name == 'workflow_dispatch' && inputs.episodes || 1000 }}
+          SEED: ${{ github.event_name == 'workflow_dispatch' && inputs.seed || 42 }}
+          RESUME: ${{ github.event_name == 'workflow_dispatch' && inputs.resume || false }}
         run: |
           mkdir -p projects/mario_double_dqn/checkpoints/mario-longrun
           {
