@@ -221,3 +221,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# Generated RL checkpoints and replay buffers (keep large binaries out of Git)
+projects/flappy_bird_dqn/assigned_implementation/runs/
+projects/mario_double_dqn/checkpoints/
+projects/mario_double_dqn/replay_memory/
