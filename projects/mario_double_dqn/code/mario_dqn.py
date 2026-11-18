@@ -1,7 +1,8 @@
-"""Double DQN agent and replay buffer for the Mario assignment."""
+"""Double DQN agent and persistent disk-backed replay buffer for Mario."""
 
 from __future__ import annotations
 
+import json
 import random
 from pathlib import Path
 from typing import Optional, Sequence
@@ -23,7 +24,6 @@ class MarioNet(nn.Module):
             raise ValueError(f"Expected four stacked frames, received {channels}.")
         if action_dim < 2:
             raise ValueError("The action space must contain at least two actions.")
-
         self.online = self._build_network(channels, action_dim)
         self.target = self._build_network(channels, action_dim)
         self.target.load_state_dict(self.online.state_dict())
@@ -66,13 +66,22 @@ class MarioNet(nn.Module):
 
 
 class ReplayBuffer:
-    """Disk-backed circular replay memory; uint8 frames keep storage compact."""
+    """Disk-backed circular replay memory with explicit, validated resume metadata."""
+
+    ARRAY_FILES = {
+        "states": "states.npy",
+        "next_states": "next_states.npy",
+        "actions": "actions.npy",
+        "rewards": "rewards.npy",
+        "terminated": "terminated.npy",
+    }
 
     def __init__(
         self,
         capacity: int = 20_000,
         state_shape: Sequence[int] = (4, 84, 84),
         directory: str | Path = "replay_memory",
+        resume: bool = False,
     ) -> None:
         if capacity < 2:
             raise ValueError("Replay capacity must be at least two.")
@@ -80,20 +89,62 @@ class ReplayBuffer:
         self.state_shape = tuple(map(int, state_shape))
         self.directory = Path(directory)
         self.directory.mkdir(parents=True, exist_ok=True)
+        self.metadata_path = self.directory / "metadata.json"
+        expected_shapes = {
+            "states": (self.capacity, *self.state_shape),
+            "next_states": (self.capacity, *self.state_shape),
+            "actions": (self.capacity,),
+            "rewards": (self.capacity,),
+            "terminated": (self.capacity,),
+        }
+        dtypes = {
+            "states": np.uint8,
+            "next_states": np.uint8,
+            "actions": np.int64,
+            "rewards": np.float32,
+            "terminated": np.bool_,
+        }
 
-        self.states = np.lib.format.open_memmap(
-            self.directory / "states.npy", mode="w+", dtype=np.uint8,
-            shape=(self.capacity, *self.state_shape)
-        )
-        self.next_states = np.lib.format.open_memmap(
-            self.directory / "next_states.npy", mode="w+", dtype=np.uint8,
-            shape=(self.capacity, *self.state_shape)
-        )
-        self.actions = np.zeros(self.capacity, dtype=np.int64)
-        self.rewards = np.zeros(self.capacity, dtype=np.float32)
-        self.terminated = np.zeros(self.capacity, dtype=np.bool_)
-        self.position = 0
-        self.size = 0
+        if resume:
+            missing = [
+                filename for filename in (*self.ARRAY_FILES.values(), self.metadata_path.name)
+                if not (self.directory / filename).is_file()
+            ]
+            if missing:
+                raise FileNotFoundError(
+                    "Cannot resume replay memory; missing files: " + ", ".join(missing)
+                )
+            metadata = json.loads(self.metadata_path.read_text(encoding="utf-8"))
+            if int(metadata.get("capacity", -1)) != self.capacity:
+                raise ValueError("Replay capacity differs from the saved replay buffer.")
+            if tuple(metadata.get("state_shape", ())) != self.state_shape:
+                raise ValueError("Observation shape differs from the saved replay buffer.")
+            self.position = int(metadata["position"])
+            self.size = int(metadata["size"])
+            self.saved_curr_step = int(metadata["curr_step"])
+            if not 0 <= self.position < self.capacity:
+                raise ValueError("Saved replay-buffer position is invalid.")
+            if not 0 <= self.size <= self.capacity:
+                raise ValueError("Saved replay-buffer size is invalid.")
+            if self.saved_curr_step < 0:
+                raise ValueError("Saved replay-buffer step count is invalid.")
+            mode = "r+"
+        else:
+            self.position = 0
+            self.size = 0
+            self.saved_curr_step = 0
+            mode = "w+"
+
+        for name, filename in self.ARRAY_FILES.items():
+            array = np.lib.format.open_memmap(
+                self.directory / filename,
+                mode=mode,
+                dtype=dtypes[name],
+                shape=expected_shapes[name],
+            )
+            if tuple(array.shape) != expected_shapes[name] or array.dtype != dtypes[name]:
+                raise ValueError(f"Replay array {filename} has an incompatible shape or dtype.")
+            setattr(self, name, array)
 
     def add(
         self,
@@ -131,9 +182,21 @@ class ReplayBuffer:
         )
         return states, actions, rewards, next_states, terminated
 
-    def flush(self) -> None:
-        self.states.flush()
-        self.next_states.flush()
+    def flush(self, curr_step: Optional[int] = None) -> None:
+        for name in self.ARRAY_FILES:
+            getattr(self, name).flush()
+        if curr_step is not None:
+            self.saved_curr_step = int(curr_step)
+        metadata = {
+            "capacity": self.capacity,
+            "state_shape": list(self.state_shape),
+            "position": self.position,
+            "size": self.size,
+            "curr_step": self.saved_curr_step,
+        }
+        temporary = self.metadata_path.with_suffix(".json.tmp")
+        temporary.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+        temporary.replace(self.metadata_path)
 
 
 class MarioAgent:
@@ -156,6 +219,7 @@ class MarioAgent:
         epsilon: float = 1.0,
         epsilon_decay: float = 0.99999975,
         epsilon_min: float = 0.1,
+        resume_replay: bool = False,
     ) -> None:
         self.state_dim = tuple(map(int, state_dim))
         self.action_dim = int(action_dim)
@@ -165,8 +229,9 @@ class MarioAgent:
         self.net = MarioNet(self.state_dim, self.action_dim).to(self.device)
         self.optimizer = torch.optim.Adam(self.net.online.parameters(), lr=learning_rate)
         self.loss_fn = nn.SmoothL1Loss()
-        self.memory = ReplayBuffer(replay_capacity, self.state_dim, replay_dir)
-
+        self.memory = ReplayBuffer(
+            replay_capacity, self.state_dim, replay_dir, resume=resume_replay
+        )
         self.batch_size = int(batch_size)
         self.burnin = int(burnin)
         self.learn_every = int(learn_every)
@@ -177,6 +242,7 @@ class MarioAgent:
         self.epsilon_decay = float(epsilon_decay)
         self.epsilon_min = float(epsilon_min)
         self.curr_step = 0
+        self.last_saved_episode = 0
 
     @torch.no_grad()
     def act(self, state: np.ndarray, explore: bool = True) -> int:
@@ -187,7 +253,6 @@ class MarioAgent:
                 np.asarray(state), dtype=torch.uint8, device=self.device
             ).unsqueeze(0)
             action = int(self.net(tensor, network="online").argmax(dim=1).item())
-
         if explore:
             self.exploration_rate = max(
                 self.epsilon_min, self.exploration_rate * self.epsilon_decay
@@ -212,7 +277,6 @@ class MarioAgent:
         next_states: torch.Tensor,
         terminated: torch.Tensor,
     ) -> torch.Tensor:
-        # Double DQN: online selects a'; target evaluates that same a'.
         next_actions = self.net(next_states, network="online").argmax(dim=1)
         next_values = self.net(next_states, network="target").gather(
             1, next_actions.unsqueeze(1)
@@ -223,12 +287,11 @@ class MarioAgent:
         if self.curr_step > 0 and self.curr_step % self.sync_every == 0:
             self.net.sync_target()
         if self.curr_step > 0 and self.curr_step % self.save_every == 0:
-            self.memory.flush()
+            self.memory.flush(self.curr_step)
         if self.curr_step < self.burnin or self.curr_step % self.learn_every != 0:
             return None, None
         if self.memory.size < self.batch_size:
             return None, None
-
         states, actions, rewards, next_states, terminated = self.memory.sample(
             self.batch_size, self.device
         )
@@ -236,7 +299,6 @@ class MarioAgent:
             1, actions.unsqueeze(1)
         ).squeeze(1)
         td_target = self.compute_td_target(rewards, next_states, terminated)
-
         loss = self.loss_fn(q_values, td_target)
         self.optimizer.zero_grad(set_to_none=True)
         loss.backward()
@@ -244,10 +306,13 @@ class MarioAgent:
         self.optimizer.step()
         return float(q_values.detach().mean().item()), float(loss.detach().item())
 
-    def save(self, path: str | Path) -> None:
+    def save(self, path: str | Path, episode: Optional[int] = None) -> None:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        self.memory.flush()
+        self.memory.flush(self.curr_step)
+        self.last_saved_episode = (
+            self.last_saved_episode if episode is None else int(episode)
+        )
         torch.save(
             {
                 "model": self.net.state_dict(),
@@ -257,17 +322,37 @@ class MarioAgent:
                 "exploration_rate": self.exploration_rate,
                 "curr_step": self.curr_step,
                 "gamma": self.gamma,
+                "episode": self.last_saved_episode,
+                "replay_position": self.memory.position,
+                "replay_size": self.memory.size,
             },
             path,
         )
 
-    def load(self, path: str | Path) -> None:
+    def load(self, path: str | Path) -> int:
         checkpoint = torch.load(path, map_location=self.device, weights_only=True)
         if tuple(checkpoint["state_dim"]) != self.state_dim:
             raise ValueError("Checkpoint observation shape does not match this agent.")
         if int(checkpoint["action_dim"]) != self.action_dim:
             raise ValueError("Checkpoint action count does not match this environment.")
+        required = {"episode", "replay_position", "replay_size"}
+        if not required.issubset(checkpoint):
+            raise ValueError(
+                "This checkpoint predates resumable replay memory. Start a new run "
+                "or use a checkpoint created by the persistent-replay version."
+            )
+        if (
+            int(checkpoint["curr_step"]) != self.memory.saved_curr_step
+            or int(checkpoint["replay_position"]) != self.memory.position
+            or int(checkpoint["replay_size"]) != self.memory.size
+        ):
+            raise ValueError(
+                "Checkpoint and replay-memory files are from different save points. "
+                "Resume only from the latest checkpoint using the same replay directory."
+            )
         self.net.load_state_dict(checkpoint["model"])
         self.optimizer.load_state_dict(checkpoint["optimizer"])
         self.exploration_rate = float(checkpoint["exploration_rate"])
         self.curr_step = int(checkpoint["curr_step"])
+        self.last_saved_episode = int(checkpoint["episode"])
+        return self.last_saved_episode
