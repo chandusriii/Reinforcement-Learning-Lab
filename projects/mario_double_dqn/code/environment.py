@@ -62,7 +62,8 @@ class MarioFrameStack(gym.Wrapper):
                 observation, reward, terminated, truncated, info = result
             else:
                 observation, reward, done, info = result
-                terminated, truncated = bool(done), False
+                truncated = bool(info.get("TimeLimit.truncated", False)) if isinstance(info, dict) else False
+                terminated = bool(done) and not truncated
             total_reward += float(reward)
             if terminated or truncated:
                 break
