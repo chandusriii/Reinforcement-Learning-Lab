@@ -1,0 +1,99 @@
+name: Mario Double DQN Resume Smoke Test
+
+on:
+  push:
+    paths:
+      - "projects/mario_double_dqn/code/**"
+      - "projects/mario_double_dqn/requirements-mario.txt"
+      - ".github/workflows/mario-resume-smoke.yml"
+  pull_request:
+    paths:
+      - "projects/mario_double_dqn/code/**"
+      - "projects/mario_double_dqn/requirements-mario.txt"
+      - ".github/workflows/mario-resume-smoke.yml"
+  workflow_dispatch:
+
+jobs:
+  mario-resume-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install CPU PyTorch and NES environment
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install numpy==1.26.4
+          python -m pip install torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install gym==0.26.2 gym-super-mario-bros==7.4.0 nes-py==8.2.1 Pillow==10.4.0
+
+      - name: Compile and smoke-test emulator
+        working-directory: projects/mario_double_dqn
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: |
+          python -m compileall -q code
+          python code/smoke_test.py --steps 2
+
+      - name: Train initial checkpoint
+        working-directory: projects/mario_double_dqn
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+          OMP_NUM_THREADS: "2"
+          MKL_NUM_THREADS: "2"
+        run: |
+          python code/train.py \
+            --episodes 2 --max-steps 64 --seed 777 \
+            --replay-capacity 256 --batch-size 8 --burnin 0 \
+            --learn-every 1 --sync-every 16 --epsilon-decay 0.99 \
+            --checkpoint-dir checkpoints/resume-smoke \
+            --replay-dir replay_memory/resume-smoke
+
+      - name: Resume training from checkpoint and replay memory
+        working-directory: projects/mario_double_dqn
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+          OMP_NUM_THREADS: "2"
+          MKL_NUM_THREADS: "2"
+        run: |
+          python code/train.py \
+            --episodes 1 --max-steps 64 --seed 777 \
+            --replay-capacity 256 --batch-size 8 --burnin 0 \
+            --learn-every 1 --sync-every 16 --epsilon-decay 0.99 \
+            --checkpoint-dir checkpoints/resume-smoke \
+            --replay-dir replay_memory/resume-smoke \
+            --resume checkpoints/resume-smoke/latest_mario_double_dqn.pt
+
+      - name: Evaluate checkpoint with a fresh replay directory
+        working-directory: projects/mario_double_dqn
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+          OMP_NUM_THREADS: "2"
+          MKL_NUM_THREADS: "2"
+        run: |
+          python code/evaluate.py \
+            --checkpoint checkpoints/resume-smoke/latest_mario_double_dqn.pt \
+            --episodes 1 --max-steps 64 --seed 1777 \
+            --output evaluation/resume-smoke.csv
+
+      - name: Upload resume evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mario-double-dqn-resume-smoke
+          path: |
+            projects/mario_double_dqn/checkpoints/resume-smoke/training_metrics.csv
+            projects/mario_double_dqn/checkpoints/resume-smoke/latest_mario_double_dqn.pt
+            projects/mario_double_dqn/evaluation/resume-smoke.csv
+          if-no-files-found: warn
+          retention-days: 30
