@@ -21,6 +21,7 @@ The goal is to make this repository useful as a learning resource: a student or 
 3. [Deep Reinforcement Learning and DQN](docs/DEEP_RL_DQN.md) — neural Q-functions, DQN, replay memory, target networks, Double DQN, and game-agent workflows.
 4. [Learning Glossary](docs/LEARNING_GLOSSARY.md) — concise definitions for quick revision.
 5. [Experiment Guide](docs/EXPERIMENT_GUIDE.md) — a consistent protocol for recording and interpreting runs.
+6. [Tabular RL practical notebooks](projects/tabular_rl/README.md) — supplied SARSA and Q-Learning CliffWalking implementations with recorded single-run outputs.
 
 The explanations follow the supplied course PDFs and project assignment materials, with additional notation and clarifying examples to connect the concepts to implementation.
 
@@ -53,7 +54,7 @@ The explanations follow the supplied course PDFs and project assignment material
 
 ### Flappy Bird — Deep Q-Network (DQN)
 
-The Flappy Bird project applies value-based reinforcement learning to a game-playing agent. The state-based network uses 12 input features, a 256-unit hidden layer, and two output action values (no-op and flap). The learning workflow uses experience replay, a target network, epsilon-greedy exploration, and reward-based updates.
+The Flappy Bird project applies value-based reinforcement learning to a game-playing agent. In the executed configuration, LiDAR is enabled and the environment supplies 180 observations to a network with a 256-unit hidden layer and two output action values (no-op and flap). The input dimension is taken from the environment observation space; this run did not use the alternative 12-feature non-LiDAR observation. The learning workflow uses experience replay, a target network, epsilon-greedy exploration, and reward-based updates.
 
 **Execution update:** end-to-end training and a separate 100-episode greedy evaluation have now been completed locally. The evaluation achieved a mean reward of **1.455**, standard deviation **0.907**, maximum **5.6**, and minimum **-0.2**. The best training reward recorded was **5.6 at episode 13,604**.
 
@@ -69,7 +70,7 @@ The Mario assignment applies Double DQN to a visual game environment. The refere
 
 [Read the Mario Double DQN project documentation](projects/mario_double_dqn/README.md).
 
-The assignment points to the [PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). Its original environment stack uses legacy Gym ecosystem packages, so dependency and operating-system compatibility should be checked before setup. Mario environment training and evaluation have not yet been completed.
+The assignment points to the [official PyTorch Mario RL tutorial](https://docs.pytorch.org/tutorials/intermediate/mario_rl_tutorial.html). The project also documents the research foundation in van Hasselt, Guez, and Silver, [Deep Reinforcement Learning with Double Q-Learning](https://arxiv.org/abs/1509.06461). The tutorial uses a legacy Gym ecosystem stack, so dependency and operating-system compatibility must be checked before setup. Mario training and evaluation have not yet been completed.
 
 ## Experiments and reproducibility
 
