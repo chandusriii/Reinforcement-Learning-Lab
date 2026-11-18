@@ -48,7 +48,18 @@ You can change the protocol explicitly, for example:
 
     python projects/tabular_rl/experiments/compare_seeds.py --seeds 1 2 3 4 5 --episodes 500 --evaluation-episodes 20
 
-Outputs are written to `projects/tabular_rl/results/multi_seed/`. A GitHub Actions workflow runs the default ten-seed experiment and uploads the CSV/JSON evidence as a 90-day workflow artifact. The original coursework notebooks remain unchanged; the multi-seed run is a separate, reproducible comparison.
+Outputs are written to `projects/tabular_rl/results/multi_seed/`. A GitHub Actions workflow runs the ten-seed experiment. The committed [per-seed CSV](results/multi_seed/per_seed.csv), [summary CSV](results/multi_seed/summary.csv), and [metadata](results/multi_seed/metadata.json) are the actual output of [successful workflow run 44330224587](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44330224587). The original coursework notebooks remain unchanged.
+
+### Measured ten-seed results
+
+| Measure | SARSA | Q-Learning |
+|---|---:|---:|
+| Mean of last-50 training returns (mean ± population SD across seeds) | -24.39 ± 2.34 | -42.71 ± 9.62 |
+| Mean greedy evaluation return across seeds | -215.30 ± 594.90 | -13.00 ± 0.00 |
+| Mean greedy evaluation steps across seeds | 215.30 ± 594.90 | 13.00 ± 0.00 |
+| Mean greedy success rate | 90% | 100% |
+
+Each seed used 500 training episodes and 20 greedy evaluation episodes, with a 2,000-step cap. Q-Learning reached the goal in all 200 evaluation episodes. SARSA reached the goal in 180/200; all 20 failures occurred for seed 49, whose greedy policy did not reach the goal before the step cap. This outlier is retained in the published results rather than hidden or removed. The two algorithms have different training-return patterns and the evaluation result does not establish a universal algorithm ranking; it is specific to these settings and seeds.
 
 Open either notebook in Jupyter to reproduce the original single-run coursework outputs. The notebooks include rendering during selected training episodes; on a headless machine, disable the human-rendering cells before running.
 
