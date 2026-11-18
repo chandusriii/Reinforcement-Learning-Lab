@@ -12,7 +12,6 @@ import os
 import argparse
 import random
 import csv
-import numpy as np
 from bounded_env import ClipObservationBounds
 
 if torch.backends.mps.is_available():
@@ -184,6 +183,11 @@ class Agent:
                         target_dqn.load_state_dict(policy_dqn.state_dict())
                         steps = 0
         finally:
+            if is_training:
+                torch.save(
+                    policy_dqn.state_dict(),
+                    os.path.join(RUNS_DIR, f"{self.param_set}_latest.pt"),
+                )
             env.close()
             if env.observation_values:
                 print(
@@ -193,10 +197,6 @@ class Agent:
                 )
 
         if is_training:
-            torch.save(
-                policy_dqn.state_dict(),
-                os.path.join(RUNS_DIR, f"{self.param_set}_latest.pt"),
-            )
             print("Latest checkpoint saved to runs/")
 
         if not is_training:
