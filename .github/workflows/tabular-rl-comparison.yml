@@ -10,6 +10,7 @@ on:
     paths:
       - "projects/tabular_rl/**"
       - ".github/workflows/tabular-rl-comparison.yml"
+  workflow_dispatch:
 
 jobs:
   cliffwalking-multi-seed:
@@ -35,8 +36,7 @@ jobs:
           python projects/tabular_rl/experiments/compare_seeds.py \
             --seeds 42 43 44 45 46 47 48 49 50 51 \
             --episodes 500 \
-            --evaluation-episodes 20 \
-            --output-dir projects/tabular_rl/results/multi_seed
+            --evaluation-episodes 20
       - name: Upload raw results and summary
         uses: actions/upload-artifact@v4
         with:
