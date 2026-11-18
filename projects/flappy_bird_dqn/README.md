@@ -1,26 +1,63 @@
-# Flappy Bird — DQN
+# Flappy Bird AI Agent Using Deep Q-Networks (DQN)
 
-## Reference
-- Upstream implementation reviewed: [shradha-khapra/RL_DQN](https://github.com/shradha-khapra/RL_DQN)
-- Environment: [flappy-bird-gymnasium](https://pypi.org/project/flappy-bird-gymnasium/)
-- Environment catalogue: [Gymnasium third-party environments](https://gymnasium.farama.org/v1.2.3/environments/third_party_environments/)
+## Project Overview
 
-## Reviewed model design
-The reference agent's state-based network uses 12 input features, one 256-unit ReLU hidden layer, and two output action values. The action space represents no-op and flap. The reference design uses epsilon-greedy action selection, replay memory, a target network, Adam, and a squared-error loss.
+This project focuses on building a reinforcement learning agent that learns to play Flappy Bird through interaction with the game environment. The agent observes the current game state, selects an action, receives a reward or penalty, and gradually learns a policy that improves its gameplay.
 
-The inspected target calculation takes `max` over the target network's next-state outputs. That is standard DQN, not Double DQN.
+The implementation uses a Deep Q-Network (DQN) to estimate the value of the available actions.
 
-## Run plan
-1. Install the isolated dependencies using [the setup guide](../../docs/SETUP_GUIDE.md).
-2. Verify the environment observation shape and action space.
-3. Check that the reference network input dimension matches the environment observation.
-4. Run a short training smoke test.
-5. Train with periodic checkpointing.
-6. Evaluate with epsilon set to zero over at least 20 episodes.
-7. Save episode returns, moving-average returns, training configuration, and checkpoint metadata.
+## Model Architecture
 
-## Current status
-**Not trained end-to-end.** Preliminary network shape/finite-output testing was reported in the prior session, but the game environment and training loop were not run in the assistant's isolated environment.
+The state-based neural network is designed with:
+
+- **Input layer:** 12 state features from the game environment.
+- **Hidden layer:** 256 neurons with ReLU activation.
+- **Output layer:** 2 Q-values, corresponding to the available actions (no-op and flap).
+
+## Key Reinforcement Learning Components
+
+- **Experience replay:** Stores previous transitions and samples batches for training.
+- **Target network:** Provides more stable target-value estimates during learning.
+- **Epsilon-greedy policy:** Balances exploration of new actions with exploitation of learned action values.
+- **Reward-based learning:** Uses feedback from the environment to update the agent's action-value estimates.
+
+## Technology Stack
+
+- Python
+- PyTorch
+- Gymnasium
+- flappy-bird-gymnasium
+- NumPy
+
+## Project Workflow
+
+1. Initialize the Flappy Bird environment.
+2. Observe the 12-feature state representation.
+3. Select an action using an epsilon-greedy policy.
+4. Execute the action and collect the reward and next state.
+5. Store the transition in the replay buffer.
+6. Sample experiences and update the online Q-network.
+7. Synchronize the target network at the configured intervals.
+8. Evaluate the trained agent using a greedy policy.
+
+## Running the Project
+
+Follow the [Windows setup guide](../../docs/SETUP_GUIDE.md) to create the environment and install the dependencies. Training and evaluation commands will be documented here after the runnable training pipeline is integrated and verified.
+
+## Experiment Status
+
+**Implementation documentation and architecture review are in place. End-to-end game training and evaluation are still pending.**
+
+No training reward curve, trained checkpoint, or gameplay performance result is claimed yet. These will be added after the training pipeline has been executed and its results recorded.
+
+## Learning Outcomes
+
+- Understanding how DQN applies neural networks to action-value estimation.
+- Working with state, action, reward, and next-state transitions.
+- Understanding experience replay and target networks.
+- Applying exploration-versus-exploitation strategies.
+- Evaluating reinforcement learning agents using recorded episode rewards.
 
 ## Attribution
-This project is based on learning from the upstream reference. Before copying or redistributing source files, review and preserve the upstream repository's license and notices.
+
+This project uses the implementation assigned for the coursework as its starting codebase. Original authorship and applicable license notices should be retained when redistributing or modifying upstream source files.
