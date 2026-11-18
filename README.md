@@ -44,7 +44,11 @@ The explanations follow the supplied course PDFs and project assignment material
 │   │   ├── EXPERIMENT_RESULTS.md
 │   │   ├── results/
 │   │   └── assigned_implementation/
-│   └── mario_double_dqn/
+│   ├── mario_double_dqn/
+│   │   └── README.md
+│   └── tabular_rl/
+│       ├── README.md
+│       └── notebooks/
 ├── experiments/
 │   └── EXPERIMENT_TEMPLATE.md
 └── requirements/
