@@ -109,8 +109,8 @@ See [Experiment Results](EXPERIMENT_RESULTS.md) for the protocol, interpretation
 
 ## Warnings and Limitations
 
-- Gymnasium emitted warnings that observations returned by environment reset/step were outside the declared observation space. The run and evaluation completed, but the mismatch has not yet been diagnosed.
-- No random seed was recorded, so this is a single-run result rather than a multi-seed performance estimate.
+- The raw LiDAR observation-space mismatch has been reproduced in GitHub Actions. Across 150 sampled observations, 2,944 individual values exceeded the declared [0, 1] Box; the maximum observed value was 1.0021062783. The environment's ray-intersection output therefore exceeds its advertised normalized upper bound. The seeded `agent_eval.py` adapter disables the premature passive checker and clips observations to the declared bounds before model input. The diagnostic script intentionally inspects raw values without clipping, so the upstream mismatch remains documented rather than hidden.
+- The historical 13,604-episode training run and 100-episode evaluation were not recorded with a seed. The newer runner accepts explicit seeds; no new multi-seed performance estimate is claimed yet.
 - The source training log records best-reward improvements, not every episode reward or loss.
 - The evaluation metrics describe this checkpoint and environment setup; they do not establish performance across other seeds or package versions.
 
