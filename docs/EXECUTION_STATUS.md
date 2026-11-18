@@ -21,8 +21,10 @@ This page separates code/architecture checks from actual environment training an
 | Repository artifacts | **Published** | Evaluation CSV, training log, and two PNG visualizations are available in the results directory |
 | Mario Double DQN implementation | **Implemented** | Tutorial-aligned CNN, online/target networks, disk-backed replay, frame preprocessing, training, checkpointing, greedy evaluation, smoke test and core tests are committed under `projects/mario_double_dqn/code/` |
 | Mario Double DQN core validation | **Passed in GitHub Actions** | Python compileall and `code/test_core.py` completed successfully on Python 3.11 / CPU PyTorch; [workflow run](https://github.com/chandusriii/Reinforcement-Learning-Lab/actions/runs/44288712557) |
-| Mario emulator smoke test | Pending | Requires the isolated Gym/NES dependencies and a local emulator run |
-| Mario gameplay training/evaluation | Pending | No game-playing run or reward claim is recorded yet; run the documented training and separate evaluation commands to produce evidence |
+| Mario emulator smoke test | **Passed in GitHub Actions** | Python 3.10, Gym 0.26.2, gym-super-mario-bros 7.4.0, nes-py 8.2.1; reset, step, and 4 × 84 × 84 observation checks passed |
+| Mario 40-episode training + 10-episode greedy evaluation | **Completed** | Mean training return 537.78; best 1,236; greedy evaluation mean 626.0, std 0.0; flag reached 0/10 |
+| Mario 100-episode faster-decay experiment + 10-episode greedy evaluation | **Completed** | Mean training return 532.24; best 1,346; greedy evaluation mean 231.0, std 0.0; flag reached 0/10 |
+| Mario core unit tests | **Passed** | Includes deterministic Double DQN online-action selection / target-network evaluation and terminal masking |
 
 
 ## Flappy Bird DQN: completed local run
@@ -114,10 +116,9 @@ These values were recalculated from the recorded episode outputs and greedy-eval
 
 ### Mario
 
-1. Install the dedicated Python 3.10 environment and the pinned Gym/NES/PyTorch dependencies described in `projects/mario_double_dqn/README.md`.
-2. Resolve any Windows native build requirement for `nes-py`, then run `python code/smoke_test.py` from the Mario project folder.
-3. Run the documented training schedule and retain its metrics/checkpoints.
-4. Evaluate the saved checkpoint separately; only then add measured gameplay results.
+1. The implementation, emulator smoke test, short training runs, and separate greedy evaluations are complete and recorded in `projects/mario_double_dqn/results/`.
+2. The current 10-episode greedy evaluations did not reach the level flag. Continue the longer training schedule (the PyTorch tutorial recommends at least 40,000 episodes) before claiming a successfully completed Mario-playing agent.
+3. When extending training, compare checkpoints with a fixed greedy evaluation protocol rather than selecting solely by exploratory episode reward.
 
 ## Integrity rule
 
